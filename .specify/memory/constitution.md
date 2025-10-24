@@ -1,50 +1,46 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+- Version change: new → 1.0.0
+- Added principles: MVP-First, Real-Time Data Accuracy, Code Quality, API-First Design, Observability
+- Added sections: Data Requirements, Development Workflow
+- Templates requiring updates: ✅ updated
+- Follow-up TODOs: none
+-->
+
+# Zorg-Sentiment Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. MVP-First Development
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+Every feature must deliver user value incrementally. Start with the simplest viable implementation and iterate based on user feedback. Features must be independently testable and deployable. No feature may be considered complete until it demonstrates measurable user value in the context of Dutch healthcare sentiment analysis.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Real-Time Data Accuracy (NON-NEGOTIABLE)
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+Data freshness and accuracy are paramount. All social media and news data must be collected, processed, and displayed with timestamps. Sources must be traceable and verifiable. Sentiment analysis results must include confidence scores. Data older than 24 hours must be clearly marked. No synthetic or mock data in production.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Code Quality & Structure
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Code must be clean, well-documented, and maintainable. Every module must have a single responsibility. Dependencies must be minimal and justified. All code must pass linting and type checking. Public APIs must have comprehensive documentation with examples.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IV. API-First Design
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+All functionality must be accessible via clean, documented APIs. Web interface consumes the same APIs as external users. API contracts must be versioned and backward-compatible. All endpoints must support both JSON and human-readable formats for debugging.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### V. Observability & Monitoring
+
+System behavior must be transparent and debuggable. All data collection, processing, and analysis must be logged with structured formatting. Performance metrics, error rates, and data source health must be monitored. Real-time dashboard must show system status alongside sentiment data.
+
+## Data Requirements
+
+Data collection must respect privacy laws (GDPR) and platform terms of service. All collected data must be anonymized before processing. Source attribution must be maintained for transparency while protecting individual privacy. Data retention policies must be clearly defined and automatically enforced.
+
+## Development Workflow
+
+All changes must be developed on feature branches with clear naming (001-feature-name). Code reviews are mandatory for all changes. No direct commits to main branch. Features must include automated tests before deployment. Production deployments require approval and rollback capability.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes all other development practices. Amendments require documentation of impact, approval from project maintainers, and migration plan for existing code. All pull requests must verify compliance with these principles. Complexity must be justified against user value.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-10-24 | **Last Amended**: 2025-10-24
