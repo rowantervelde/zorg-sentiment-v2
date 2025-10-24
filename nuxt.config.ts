@@ -42,6 +42,13 @@ export default defineNuxtConfig({
     typeCheck: false // Disabled for faster dev server startup
   },
 
+  // Vite configuration to handle optional dependencies
+  vite: {
+    optimizeDeps: {
+      exclude: ['oxc-parser']
+    }
+  },
+
   // App configuration
   app: {
     head: {
