@@ -1,6 +1,7 @@
 # Quick Deployment Guide - MVP
 
 ## Prerequisites
+
 - Netlify account (free tier is sufficient)
 - GitHub repository with this code
 
@@ -66,6 +67,7 @@ Or visit: `https://YOUR_SITE_URL/.netlify/functions/collect-sentiment` in your b
 The `collect-sentiment` function is configured to run hourly automatically via Netlify's scheduled functions. This should work out of the box once deployed.
 
 To verify it's scheduled:
+
 1. Go to Netlify Dashboard → Your Site → Functions
 2. Click on `collect-sentiment`
 3. Check the "Schedule" section - should show "@hourly"
@@ -73,6 +75,7 @@ To verify it's scheduled:
 ### 6. Monitor Function Logs
 
 To see if data collection is working:
+
 1. Netlify Dashboard → Your Site → Functions → `collect-sentiment`
 2. Click "Function logs"
 3. Look for successful executions and any errors
@@ -93,16 +96,19 @@ The default values in `nuxt.config.ts` are sufficient for MVP. If you need to cu
 ## Troubleshooting
 
 ### "No data available" persists
+
 - Manually trigger the collection function (step 3)
 - Check function logs for errors
 - Verify NU.nl RSS feed is accessible: https://www.nu.nl/rss/Gezondheid
 
 ### Build fails
+
 - Check Netlify build logs
 - Ensure Node.js version is 20.x (set in netlify.toml)
 - Verify all dependencies are in package.json
 
 ### Function errors
+
 - Check if @netlify/blobs is working (requires Netlify deployment)
 - Look for RSS fetch errors in function logs
 - Verify sentiment analysis is processing correctly
@@ -110,12 +116,14 @@ The default values in `nuxt.config.ts` are sufficient for MVP. If you need to cu
 ## Next Steps After Deployment
 
 1. **Test the MVP**:
+
    - Visit the site on mobile and desktop
    - Verify mood indicator displays correctly
    - Check timestamp updates
    - Test refresh button
 
 2. **Share for Feedback**:
+
    - Share the Netlify URL with stakeholders
    - Gather feedback on UX and accuracy
    - Note any issues or improvements needed
@@ -136,6 +144,7 @@ The default values in `nuxt.config.ts` are sufficient for MVP. If you need to cu
 ## Support
 
 For detailed documentation, see:
+
 - [README.md](./README.md)
 - [Quickstart Guide](./specs/001-mvp-sentiment-dashboard/quickstart.md)
 - [Implementation Plan](./specs/001-mvp-sentiment-dashboard/plan.md)

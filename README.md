@@ -74,17 +74,20 @@ This creates a static site in `.output/public/` ready for deployment.
 ### Automatic Deployment (Recommended)
 
 1. **Connect Repository**:
+
    - Go to [Netlify Dashboard](https://app.netlify.com/)
    - Click "Add new site" → "Import an existing project"
    - Choose your Git provider and repository
    - Select branch: `main` (or your feature branch)
 
 2. **Build Settings** (auto-detected from `netlify.toml`):
+
    - Build command: `npm run generate`
    - Publish directory: `.output/public`
    - Functions directory: `netlify/functions`
 
 3. **Environment Variables** (optional, defaults are in `nuxt.config.ts`):
+
    ```
    RSS_FEED_URL=https://www.nu.nl/rss/Gezondheid
    FEED_FETCH_INTERVAL_MINUTES=60
@@ -165,6 +168,7 @@ This provides Netlify Blobs emulation and function testing locally.
 ### MVP Scope
 
 Following the MVP-first approach, this implementation includes only **User Story 1** (P1):
+
 - ✅ View current national mood
 - ⏭️ See sentiment trends (P2) - Future iteration
 - ⏭️ Understand sentiment breakdown chart (P3) - Future iteration
@@ -179,6 +183,7 @@ Following the MVP-first approach, this implementation includes only **User Story
 ### Data Flow
 
 1. **Collection** (hourly via Netlify Function):
+
    - Fetch RSS feed from NU.nl Gezondheid
    - Analyze sentiment using `sentiment` package
    - Store data point in Netlify Blobs (7-day retention)
@@ -196,9 +201,11 @@ Following the MVP-first approach, this implementation includes only **User Story
 Returns current sentiment data with optional trend and summary.
 
 **Query Parameters**:
+
 - `include`: `trend` | `summary` | `all` (default: `all`)
 
 **Response**:
+
 ```json
 {
   "current": {
@@ -224,6 +231,7 @@ Returns current sentiment data with optional trend and summary.
 ## 🔒 Rate Limiting
 
 The API implements rate limiting:
+
 - **20 requests per hour** per IP address
 - Returns `429 Too Many Requests` when exceeded
 - Client automatically handles 429 responses
@@ -252,16 +260,19 @@ The API implements rate limiting:
 ## 🚀 Next Steps (Post-MVP)
 
 ### User Story 2: Trends (P2)
+
 - Add 7-day trend chart with Chart.js
 - Visualize sentiment changes over time
 - Highlight notable swings (>20% change)
 
 ### User Story 3: Breakdown (P3)
+
 - Add doughnut chart for sentiment distribution
 - Visual emphasis when one category dominates (>70%)
 - Color-coded categories
 
 ### Production Enhancements
+
 - Migrate from Netlify Blobs to PostgreSQL (Supabase)
 - Add more RSS sources (NOS, Zorgverzekeraars.nl)
 - Implement AI-generated commentary
@@ -272,6 +283,7 @@ The API implements rate limiting:
 ## 📚 Documentation
 
 For detailed documentation, see:
+
 - [Specification](./specs/001-mvp-sentiment-dashboard/spec.md)
 - [Implementation Plan](./specs/001-mvp-sentiment-dashboard/plan.md)
 - [Data Model](./specs/001-mvp-sentiment-dashboard/data-model.md)
@@ -283,6 +295,7 @@ For detailed documentation, see:
 ### Issue: "No data available" on deployed site
 
 **Solution**: Manually trigger the collection function once:
+
 ```bash
 curl -X POST https://your-site.netlify.app/.netlify/functions/collect-sentiment
 ```
@@ -290,6 +303,7 @@ curl -X POST https://your-site.netlify.app/.netlify/functions/collect-sentiment
 ### Issue: RSS feed not fetching
 
 **Solution**: Check Netlify function logs:
+
 1. Go to Netlify Dashboard → Your Site → Functions
 2. Click `collect-sentiment` → View logs
 3. Look for fetch errors
