@@ -35,13 +35,13 @@ Web application structure (Nuxt 4.1.3 with `app/` directory + Netlify Functions)
 
 - [x] T001 Initialize Nuxt 4.1.3 project with TypeScript 5.9 in repository root ✅
 - [x] T002 [P] Install core dependencies: @nuxt/ui v4.1, vue-chartjs, chart.js, @netlify/blobs ✅
-- [x] T003 [P] Install sentiment analysis: sentiment, wink-nlp-utils (or Google Cloud Natural Language API client)
+- [x] T003 [P] Install sentiment analysis: sentiment, wink-nlp-utils (or Google Cloud Natural Language API client) ✅
 - [ ] T004 [P] Install testing dependencies: vitest, @nuxt/test-utils, playwright (OPTIONAL - deferred for MVP)
 - [x] T005 Configure nuxt.config.ts with Nuxt 4 compatibility and Netlify integration ✅
 - [x] T006 Create netlify.toml with build configuration and scheduled function settings ✅
 - [x] T007 [P] Setup TypeScript configuration (tsconfig.json) for Nuxt 4 ✅
 - [x] T008 [P] Configure Tailwind CSS with Nuxt UI v4.1 integration ✅
-- [ ] T009 Create .env.example with required environment variables per quickstart.md
+- [x] T009 Create .env.example with required environment variables per quickstart.md ✅
 - [x] T010 Initialize package.json scripts: dev, build, generate, preview ✅
 
 ---

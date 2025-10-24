@@ -8,3 +8,8 @@
 
 [build.environment]
   NODE_VERSION = "20"
+
+# Scheduled function for hourly sentiment data collection
+[[functions]]
+  name = "collect-sentiment"
+  schedule = "0 * * * *"  # Every hour
