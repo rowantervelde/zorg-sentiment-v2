@@ -93,6 +93,28 @@ A curious visitor wants to see more detail behind the overall mood. They view a 
 - **FR-011**: System MUST present information in a visually engaging and playful manner while maintaining data accuracy
 - **FR-012**: System MUST store historical sentiment data for trend visualization
 
+### Visual Design Requirements (MVP - User Story 1)
+
+- **VD-001**: Mood indicator MUST use emoji as primary visual format (😊 for positive, 😐 for mixed/neutral, 😟 for negative)
+- **VD-002**: Mood indicator emoji MUST be displayed at minimum 80px and maximum 120px in diameter
+- **VD-003**: Mood indicator MUST use semantic color coding: green (#10b981) for positive, gray (#6b7280) for mixed/neutral, red (#ef4444) for negative
+- **VD-004**: "Playful manner" (FR-011) MUST be achieved through: (a) friendly Dutch language copy with warm tone, (b) bright, accessible color palette, (c) emoji as primary visual metaphor
+- **VD-005**: Mood summary text MUST be limited to 200 characters maximum to ensure conciseness
+- **VD-006**: Mood indicator MUST be positioned prominently above summary text with vertical spacing of 24-32px
+
+### Accessibility Requirements (MVP - User Story 1)
+
+- **A11Y-001**: Mood indicator MUST include ARIA label describing current mood state in Dutch (e.g., "Huidige stemming: positief")
+- **A11Y-002**: Mood indicator emoji MUST include role="img" and descriptive aria-label for screen readers
+- **A11Y-003**: All text MUST meet WCAG 2.1 Level AA contrast ratio (minimum 4.5:1 for normal text, 3:1 for large text)
+- **A11Y-004**: All interactive elements MUST be keyboard navigable with visible focus indicators
+
+### Responsive Design Requirements (MVP - User Story 1)
+
+- **RD-001**: Layout MUST support two breakpoints: desktop (≥768px width) and mobile (<768px width)
+- **RD-002**: Mobile layout MUST display mood indicator and summary stacked vertically with full-width container
+- **RD-003**: Mood indicator emoji MUST scale proportionally on mobile (minimum 64px, maximum 96px diameter)
+
 ### Key Entities
 
 - **Sentiment Data Point**: Represents a single measurement of public sentiment, including timestamp, overall mood classification (positive/mixed/neutral/negative based on ≥60% threshold), and breakdown by category (positive/neutral/negative percentages)
@@ -157,3 +179,8 @@ A curious visitor wants to see more detail behind the overall mood. They view a 
 - Integration with third-party analytics beyond basic web metrics
 - Administrative dashboard for content moderation
 - AI-generated commentary (deferred to post-MVP)
+- Micro-interactions and animations (emoji bounce, hover effects)
+- Advanced loading state UI (skeleton screens, progressive loading)
+- Landscape orientation optimizations
+- Advanced edge case handling (100% extreme values, exact threshold boundaries)
+- Graceful degradation for legacy browsers (IE11, older Safari versions)
