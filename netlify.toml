@@ -1,11 +1,11 @@
 [build]
-  command = "npm run generate"
+  command = "npm install --include=optional && npx nuxt prepare && npm run generate"
   publish = ".output/public"
   functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "20"
-  NPM_FLAGS = "--legacy-peer-deps"
+  NPM_CONFIG_INCLUDE = "optional"
 
 [functions]
   node_bundler = "esbuild"
