@@ -1,0 +1,30 @@
+﻿# zorg-sentiment-v2 Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2025-10-24
+
+## Active Technologies
+
+- TypeScript 5.x with JavaScript (Nuxt 3 runtime) + Nuxt 3 (latest), Nuxt UI v3, Vue 3, Nitro (server engine) (001-mvp-sentiment-dashboard)
+
+## Project Structure
+
+```text
+backend/
+frontend/
+tests/
+```
+
+## Commands
+
+npm test; npm run lint
+
+## Code Style
+
+TypeScript 5.x with JavaScript (Nuxt 3 runtime): Follow standard conventions
+
+## Recent Changes
+
+- 001-mvp-sentiment-dashboard: Added TypeScript 5.x with JavaScript (Nuxt 3 runtime) + Nuxt 3 (latest), Nuxt UI v3, Vue 3, Nitro (server engine)
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->
