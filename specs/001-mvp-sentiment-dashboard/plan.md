@@ -1,44 +1,36 @@
+````markdown
 # Implementation Plan: MVP Sentiment Dashboard
 
 **Branch**: `001-mvp-sentiment-dashboard` | **Date**: 2025-10-24 | **Spec**: [spec.md](./spec.md)
 **Input**: Feature specification from `/specs/001-mvp-sentiment-dashboard/spec.md`
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
-
 ## Summary
 
-Build a playful, minimal MVP web application that visualizes Dutch healthcare insurance sentiment in real-time. The application will collect sentiment data hourly from RSS feeds (starting with a single source), analyze it using sentiment classification (≥60% threshold), and display the results through an interactive dashboard showing current mood, 7-day trends, and sentiment breakdown. The system targets 100-500 concurrent users with static site generation for performance and Netlify Functions for serverless data processing.
+Build a playful web application that visualizes Dutch healthcare insurance sentiment in real-time using Nuxt 4 with SSR capabilities, deployed on Netlify. The MVP delivers three core user stories: (1) viewing current national mood with emoji-based indicators, (2) exploring sentiment trends over 7+ days, and (3) understanding sentiment breakdown percentages. Data collection occurs hourly via scheduled functions, with sentiment analysis performed server-side and cached for optimal performance.
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.x with JavaScript (Nuxt 3 runtime)  
-**Primary Dependencies**: Nuxt 3 (latest), Nuxt UI v3, Vue 3, Nitro (server engine), @netlify/blobs (persistent storage)  
-**Storage**: Netlify Blobs (key-value store) for persistent JSON data with 7-day retention, migrateable to database post-MVP  
-**Testing**: Vitest for unit tests, Playwright for E2E tests  
-**Target Platform**: Static site with Netlify Functions (serverless), deployed on Netlify  
-**Project Type**: Web application (Nuxt 3 SSG with serverless functions)  
-**Performance Goals**: <3s page load, <90min between data collection cycles, handles 100-500 concurrent users  
-**Constraints**: 20 requests/hour per IP rate limiting, 24-hour data staleness warning threshold, Dutch language only  
-**Scale/Scope**: Single source RSS feed initially, hourly data collection, 7-day historical data, 3 main visualizations (mood indicator, trends chart, breakdown)
-
-**Deployment Strategy**:
-
-- Static site generation (`nuxt generate`) for frontend
-- Netlify Functions for serverless backend (data collection, sentiment analysis)
-- Incremental deployment: test after each feature addition before proceeding
-- Start with single RSS feed, add more sources post-MVP validation
+**Language/Version**: TypeScript 5.9 + JavaScript (Nuxt 4.1.3 runtime)  
+**Primary Dependencies**: Nuxt 4.1.3, Nuxt UI v4.1, Vue 3.5, Nitro 2.x (server engine)  
+**Storage**: Netlify Blob Storage (sentiment data points + historical trends), or fallback to file-based JSON storage  
+**Testing**: Vitest (unit tests), Playwright (E2E tests)  
+**Target Platform**: Netlify Edge (CDN + serverless functions), Node.js 20 runtime  
+**Project Type**: Web (SSR + API routes via Nuxt server)  
+**Performance Goals**: <3s page load, <200ms API response (p95), hourly data collection, support 100-500 concurrent users  
+**Constraints**: Netlify free tier limits (125k requests/month), 20 requests/hour per IP rate limit, <10MB function size  
+**Scale/Scope**: MVP with 3 user stories, ~10 Vue components, ~5 API routes, 7+ days data retention
 
 ## Constitution Check
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-**MVP-First Development**: ✅ Feature delivers independent user value - P1 (current mood) can be deployed alone, P2 (trends) and P3 (breakdown) add incrementally  
-**Real-Time Data Accuracy**: ✅ Data sources are traceable with timestamps - RSS feeds with collection timestamps, 24-hour staleness warnings, hourly collection schedule  
-**Code Quality & Structure**: ✅ Clean architecture with single responsibilities - Separate concerns: data collection (Netlify Functions), sentiment analysis (service layer), visualization (Vue components)  
-**API-First Design**: ✅ All functionality accessible via documented APIs - Netlify Functions expose `/api/sentiment` endpoints for frontend consumption, same APIs available for future integrations  
-**Observability & Monitoring**: ✅ Structured logging and metrics planned - Collection timestamps, error logging for failed fetches, data staleness indicators visible to users
+**MVP-First Development**: ✅ Feature delivers three independent, testable user stories (view mood, see trends, understand breakdown)  
+**Real-Time Data Accuracy**: ✅ Hourly data collection with timestamps, 24-hour freshness warning, traceable sources  
+**Code Quality & Structure**: ✅ Nuxt 4 auto-imports, composables for separation of concerns, TypeScript strict mode  
+**API-First Design**: ✅ All data via Nuxt server routes (`/api/*`), consumed by frontend and potentially external clients  
+**Observability & Monitoring**: ✅ Nitro structured logging, scheduled function monitoring via Netlify dashboard
 
-**Gate Status**: ✅ PASSED - All constitutional principles satisfied for MVP scope
+**Violations**: None. All constitution principles satisfied for MVP scope.
 
 ## Project Structure
 
@@ -46,77 +38,157 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 ```text
 specs/001-mvp-sentiment-dashboard/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (sentiment analysis, RSS parsing, deployment)
-├── data-model.md        # Phase 1 output (SentimentDataPoint, MoodSummary entities)
-├── quickstart.md        # Phase 1 output (local dev setup, deployment guide)
-├── contracts/           # Phase 1 output (API contracts for Netlify Functions)
+├── plan.md              # This file (filled by analysis of existing setup)
+├── research.md          # Phase 0: Technology decisions & API research
+├── data-model.md        # Phase 1: Sentiment entities & storage schema
+├── quickstart.md        # Phase 1: Local dev setup & deployment guide
+├── contracts/           # Phase 1: OpenAPI specs for API routes
 │   └── sentiment-api.yaml
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+├── tasks.md             # Phase 2: /speckit.tasks command output
+└── checklists/
+    ├── requirements.md  # Manual tracking of spec requirements
+    └── ux.md           # Manual tracking of visual/UX requirements
 ```
 
 ### Source Code (repository root)
 
 ```text
-# Web application structure (Nuxt 3 SSG + Netlify Functions)
-nuxt.config.ts           # Nuxt configuration (SSG, Netlify preset)
-package.json             # Dependencies and scripts
-netlify.toml             # Netlify deployment configuration
+# Nuxt 4 Web Application (existing setup verified)
+app/
+├── app.vue              # ✅ Root component (currently using NuxtWelcome)
+├── components/          # Vue components (to be created)
+│   ├── MoodIndicator.vue
+│   ├── SentimentBreakdown.vue
+│   └── TrendChart.vue
+├── composables/         # Reusable composition functions (to be created)
+│   ├── useSentiment.ts
+│   └── useRateLimit.ts
+├── pages/               # File-based routing (to be created)
+│   └── index.vue        # Homepage with all three user stories
+└── server/              # Nitro server routes (to be created)
+    ├── api/
+    │   ├── sentiment/
+    │   │   ├── current.get.ts
+    │   │   ├── trends.get.ts
+    │   │   └── breakdown.get.ts
+    │   └── health.get.ts
+    ├── utils/           # Server-only utilities
+    │   ├── sentiment.ts
+    │   ├── storage.ts
+    │   └── rateLimit.ts
+    └── middleware/      # Server middleware
+        └── rateLimit.ts
 
-pages/                   # Nuxt pages (SSG routes)
-├── index.vue            # Main dashboard page
+netlify/
+└── functions/           # Scheduled & edge functions (to be created)
+    └── collect-sentiment.ts  # Hourly cron job
 
-components/              # Vue components
-├── MoodIndicator.vue    # Current sentiment visualization (P1)
-├── TrendsChart.vue      # 7-day trend visualization (P2)
-├── SentimentBreakdown.vue  # Percentage breakdown (P3)
-└── DataTimestamp.vue    # Last updated + staleness warning
-
-composables/             # Vue composables
-├── useSentiment.ts      # Sentiment data fetching logic
-└── useRateLimit.ts      # Client-side rate limit handling
-
-netlify/functions/       # Netlify serverless functions
-├── collect-sentiment.ts # Scheduled hourly data collection
-├── analyze-sentiment.ts # Sentiment analysis processing
-└── get-sentiment.ts     # API endpoint for frontend
-
-server/                  # Nitro server routes (API layer)
-├── api/
-│   └── sentiment.get.ts # GET /api/sentiment endpoint
-
-services/                # Business logic
-├── rss-fetcher.ts       # RSS feed parsing
-├── sentiment-analyzer.ts # Sentiment classification (≥60% threshold)
-└── data-store.ts        # Netlify Blobs storage operations (persistent key-value store)
-
-types/                   # TypeScript definitions
-├── sentiment.ts         # SentimentDataPoint, MoodSummary interfaces
-└── api.ts               # API request/response types
+public/
+├── robots.txt           # ✅ Existing
+└── favicon.ico          # To be added
 
 tests/
-├── unit/
-│   ├── sentiment-analyzer.spec.ts
-│   └── rss-fetcher.spec.ts
-└── e2e/
-    └── dashboard.spec.ts
+├── unit/                # Vitest unit tests (to be created)
+│   ├── components/
+│   └── utils/
+└── e2e/                 # Playwright E2E tests (to be created)
+    └── homepage.spec.ts
+
+# Configuration (existing, may need updates)
+nuxt.config.ts           # ✅ Nuxt 4.1.3 + Nuxt UI configured
+netlify.toml             # ✅ Build config for Netlify
+package.json             # ✅ Dependencies defined
+tsconfig.json            # ✅ TypeScript config
 ```
 
-**Structure Decision**: Chosen **Web application** structure with Nuxt 3 SSG frontend and Netlify Functions backend. This architecture supports:
-
-- Static site generation for fast page loads (<3s goal)
-- Serverless functions for data collection without maintaining servers
-- Clear separation between frontend (Vue/Nuxt) and backend (Netlify Functions)
-- Incremental deployment and testing per feature
-- Simple JSON storage for MVP, easily upgradable to database later
+**Structure Decision**: Using **Nuxt 4 Web Application** pattern (verified from existing codebase). The app already has Nuxt 4.1.3 with Nuxt UI v4.1 configured, deployed on Netlify with Node 20 runtime. The server directory will host API routes via Nitro, and scheduled functions will use Netlify's cron capabilities.
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+## Complexity Tracking
 
-No violations detected. MVP architecture maintains constitutional compliance with:
+> **No complexity violations** – MVP follows standard Nuxt 4 patterns with minimal architectural overhead. No justification required.
 
-- Single responsibility principle (separate frontend, functions, services)
-- Minimal dependencies (Nuxt 3 ecosystem + standard libraries)
-- Clean API boundaries (Netlify Functions as API layer)
-- Observable system behavior (timestamps, logging, user-visible staleness warnings)
+---
+
+## Phase Completion Summary
+
+### Phase 0: Outline & Research ✅ COMPLETE
+
+**Status**: All technical unknowns resolved  
+**Artifact**: [research.md](./research.md)
+
+**Key Decisions**:
+
+- Data sources: Reddit API + NU.nl RSS feed for Dutch healthcare content
+- Sentiment analysis: Google Cloud Natural Language API with Dutch support
+- Storage: Netlify Blob Storage (free tier, 100GB + 1TB bandwidth)
+- Rate limiting: IP-based with Nitro middleware (20 req/hour)
+- Scheduling: Netlify Scheduled Functions (hourly cron)
+- Charting: Chart.js via vue-chartjs for trends visualization
+- Testing: Vitest (unit) + Playwright (E2E)
+
+**No Blocking Dependencies**: All technologies have free tiers and are compatible with Nuxt 4 + Netlify.
+
+### Phase 1: Design & Contracts ✅ COMPLETE
+
+**Status**: Data models, API contracts, and quickstart documentation complete  
+**Artifacts**:
+
+- [data-model.md](./data-model.md) - Core entities with TypeScript interfaces
+- [contracts/sentiment-api.yaml](./contracts/sentiment-api.yaml) - OpenAPI 3.0 specification
+- [quickstart.md](./quickstart.md) - Developer setup guide
+- [.github/copilot-instructions.md](../../.github/copilot-instructions.md) - Updated agent context
+
+**Core Entities Defined**:
+
+1. `SentimentDataPoint` - Hourly sentiment measurements with breakdown
+2. `MoodSummary` - Human-readable Dutch summaries with emoji
+3. `TrendPeriod` - 7-day historical aggregation
+4. `DataSource` - RSS feed configuration
+
+**API Endpoints Designed**:
+
+- `GET /api/sentiment` - Current mood + trends + breakdown (all-in-one)
+- `GET /api/sentiment/history` - Historical data with date filtering
+- `GET /api/health` - System health check
+
+**Constitution Re-Check**: ✅ All principles satisfied post-design
+
+### Phase 2: Implementation Planning (Next Step)
+
+**Action Required**: Run `/speckit.tasks` command to generate `tasks.md` with:
+
+- Atomic implementation tasks for P1, P2, P3 user stories
+- Test coverage requirements
+- Deployment checklist
+
+**Ready for Development**: All design artifacts are complete. Implementation can begin immediately after task breakdown.
+
+---
+
+## Implementation Readiness Checklist
+
+- ✅ Existing Nuxt 4.1.3 app verified and running on Netlify
+- ✅ Technical unknowns resolved (Phase 0)
+- ✅ Data models defined with validation rules (Phase 1)
+- ✅ API contracts specified in OpenAPI format (Phase 1)
+- ✅ Developer quickstart guide created (Phase 1)
+- ✅ Agent context updated with tech stack (Phase 1)
+- ⏳ Task breakdown pending (Phase 2 - use `/speckit.tasks` command)
+
+**Next Command**: `Follow instructions in speckit.tasks.prompt.md` to generate atomic implementation tasks.
+
+---
+
+## Branch Information
+
+- **Feature Branch**: `001-mvp-sentiment-dashboard` (current)
+- **Base Branch**: `main` (assumed)
+- **Plan Location**: `c:\git\github\zorg-sentiment-v2\specs\001-mvp-sentiment-dashboard\plan.md`
+- **Spec Location**: `c:\git\github\zorg-sentiment-v2\specs\001-mvp-sentiment-dashboard\spec.md`
+````
+
+`````
+````
+`````

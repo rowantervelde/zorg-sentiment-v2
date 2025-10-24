@@ -19,30 +19,30 @@ description: "Implementation task breakdown for MVP Sentiment Dashboard"
 
 ## Path Conventions
 
-Web application structure (Nuxt 3 SSG + Netlify Functions):
+Web application structure (Nuxt 4.1.3 with `app/` directory + Netlify Functions):
 
-- Frontend: `pages/`, `components/`, `composables/`
-- Backend: `netlify/functions/`, `server/api/`
-- Services: `services/`
-- Types: `types/`
+- Frontend: `app/pages/`, `app/components/`, `app/composables/`
+- Backend: `netlify/functions/`, `app/server/api/`, `app/server/utils/`
+- Types: `app/types/`
 - Tests: `tests/unit/`, `tests/e2e/`
+- Root: `app/app.vue` (main app component)
 
 ---
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization and Nuxt 3 + Netlify configuration
+**Purpose**: Project initialization and Nuxt 4.1.3 + Netlify configuration
 
-- [x] T001 Initialize Nuxt 3 project with TypeScript 5.x in repository root
-- [x] T002 [P] Install core dependencies: @nuxt/ui, vue-chartjs, chart.js, @netlify/blobs
-- [x] T003 [P] Install sentiment analysis: sentiment, wink-nlp-utils
-- [ ] T004 [P] Install testing dependencies: vitest, @nuxt/test-utils, playwright (DEFERRED - MVP focus)
-- [x] T005 Configure nuxt.config.ts with SSG preset and Netlify integration
-- [x] T006 Create netlify.toml with build configuration and function settings
-- [x] T007 [P] Setup TypeScript configuration (tsconfig.json) for Nuxt 3
-- [x] T008 [P] Configure Tailwind CSS with Nuxt UI v3 integration
-- [x] T009 Create .env.example with required environment variables per quickstart.md
-- [x] T010 Initialize package.json scripts: dev, build, generate, test, lint
+- [x] T001 Initialize Nuxt 4.1.3 project with TypeScript 5.9 in repository root ✅
+- [x] T002 [P] Install core dependencies: @nuxt/ui v4.1, vue-chartjs, chart.js, @netlify/blobs ✅
+- [x] T003 [P] Install sentiment analysis: sentiment, wink-nlp-utils (or Google Cloud Natural Language API client)
+- [ ] T004 [P] Install testing dependencies: vitest, @nuxt/test-utils, playwright (OPTIONAL - deferred for MVP)
+- [x] T005 Configure nuxt.config.ts with Nuxt 4 compatibility and Netlify integration ✅
+- [x] T006 Create netlify.toml with build configuration and scheduled function settings ✅
+- [x] T007 [P] Setup TypeScript configuration (tsconfig.json) for Nuxt 4 ✅
+- [x] T008 [P] Configure Tailwind CSS with Nuxt UI v4.1 integration ✅
+- [ ] T009 Create .env.example with required environment variables per quickstart.md
+- [x] T010 Initialize package.json scripts: dev, build, generate, preview ✅
 
 ---
 
@@ -52,18 +52,18 @@ Web application structure (Nuxt 3 SSG + Netlify Functions):
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [x] T011 Create TypeScript interfaces in types/sentiment.ts (SentimentDataPoint, MoodSummary, MoodType)
-- [x] T012 [P] Create TypeScript interfaces in types/api.ts (API request/response types)
-- [x] T013 [P] Create DataSource interface in types/sentiment.ts with MVP configuration
-- [x] T014 Implement Netlify Blobs data store service in services/data-store.ts (getStore, get, setJSON operations)
-- [x] T015 [P] Implement RSS feed fetcher in services/rss-fetcher.ts (fetch NU.nl Gezondheid feed)
-- [x] T016 [P] Implement sentiment analyzer in services/sentiment-analyzer.ts (Dutch text analysis, ≥60% threshold classification)
-- [x] T017 Implement mood summary generator in services/sentiment-analyzer.ts (Dutch templates for positive/negative/mixed/neutral)
-- [x] T018 Create Netlify Function for data collection in netlify/functions/collect-sentiment.ts (hourly scheduled)
-- [x] T019 Create Netlify Function GET endpoint in server/api/sentiment.get.ts (implements /api/sentiment contract)
-- [ ] T020 [P] Setup rate limiting with Netlify Edge Function (20 req/hour per IP) (DEFERRED - can be added in deployment)
-- [x] T021 [P] Create base Vue composable useSentiment.ts in composables/ for data fetching
-- [x] T022 Create default error boundary and loading states in app.vue
+- [ ] T011 Create TypeScript interfaces in app/types/sentiment.ts (SentimentDataPoint, MoodSummary, TrendPeriod, MoodType)
+- [ ] T012 [P] Create TypeScript interfaces in app/types/api.ts (API request/response types per OpenAPI contract)
+- [ ] T013 [P] Create DataSource interface in app/types/sentiment.ts with MVP configuration
+- [ ] T014 Implement Netlify Blobs storage utility in app/server/utils/storage.ts (getStore, getData, saveData, cleanup7DayWindow)
+- [ ] T015 [P] Implement RSS feed fetcher in app/server/utils/rssFetcher.ts (fetch NU.nl Gezondheid feed, parse XML to articles)
+- [ ] T016 [P] Implement sentiment analyzer in app/server/utils/sentimentAnalyzer.ts (Dutch text analysis via Google Cloud Natural Language API or sentiment package, classify with ≥60% threshold)
+- [ ] T017 Implement mood summary generator in app/server/utils/moodSummary.ts (Dutch templates for positive/negative/mixed/neutral with emoji)
+- [ ] T018 Create Netlify scheduled function in netlify/functions/collect-sentiment.ts (hourly RSS fetch + analysis + Blob storage)
+- [ ] T019 Create sentiment API endpoint in app/server/api/sentiment.get.ts (returns current + trends + breakdown per OpenAPI contract)
+- [ ] T020 [P] Setup rate limiting middleware in app/server/middleware/rateLimit.ts (20 req/hour per IP using Nitro context.ip)
+- [ ] T021 [P] Create base Vue composable useSentiment.ts in app/composables/ for API data fetching with reactive state
+- [ ] T022 Update app/app.vue to remove NuxtWelcome and setup proper app layout with error boundary
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,16 +83,16 @@ Web application structure (Nuxt 3 SSG + Netlify Functions):
 
 ### Implementation for User Story 1
 
-- [x] T023 [P] [US1] Create MoodIndicator.vue component in components/ with emoji/icon display
-- [x] T024 [P] [US1] Create DataTimestamp.vue component in components/ with last updated display
-- [x] T025 [US1] Implement mood classification logic in MoodIndicator.vue (≥60% threshold mapping)
-- [x] T026 [US1] Add Dutch mood summary display to MoodIndicator.vue
-- [x] T027 [US1] Create main dashboard page in pages/index.vue with MoodIndicator integration
-- [x] T028 [US1] Implement useSentiment composable to fetch from /api/sentiment
-- [x] T029 [US1] Add loading state handling in pages/index.vue
-- [x] T030 [US1] Add "no data available" friendly message in pages/index.vue
-- [x] T031 [US1] Style MoodIndicator with Nuxt UI components (UCard, UBadge)
-- [x] T032 [US1] Add responsive design for mobile and desktop in pages/index.vue
+- [ ] T023 [P] [US1] Create MoodIndicator.vue component in app/components/ with emoji display (😊/😐/😟, sizes per VD-002, colors per VD-003, ARIA labels per A11Y-001/A11Y-002)
+- [ ] T024 [P] [US1] Create DataTimestamp.vue component in app/components/ with last updated display and staleness warning
+- [ ] T025 [US1] Implement mood classification logic in MoodIndicator.vue (≥60% threshold mapping to emoji + color)
+- [ ] T026 [US1] Add Dutch mood summary display to MoodIndicator.vue (max 200 chars per VD-005)
+- [ ] T027 [US1] Create main dashboard page in app/pages/index.vue with MoodIndicator integration (layout per VD-006, responsive per RD-001/RD-002)
+- [ ] T028 [US1] Implement useSentiment composable to fetch from app/server/api/sentiment.get.ts with error handling
+- [ ] T029 [US1] Add loading state handling in app/pages/index.vue (skeleton UI or spinner)
+- [ ] T030 [US1] Add "no data available" friendly Dutch message in app/pages/index.vue per acceptance scenario 3
+- [ ] T031 [US1] Style MoodIndicator with Nuxt UI v4 components (UCard, UBadge) and verify contrast ratios per A11Y-003
+- [ ] T032 [US1] Add responsive design for mobile (<768px) and desktop (≥768px) in app/pages/index.vue per RD-001/RD-002/RD-003
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - visitors see current mood indicator with summary or friendly no-data message
 
@@ -112,16 +112,16 @@ Web application structure (Nuxt 3 SSG + Netlify Functions):
 
 ### Implementation for User Story 2
 
-- [ ] T033 [P] [US2] Create TrendsChart.vue component in components/ with Chart.js integration
-- [ ] T034 [P] [US2] Implement TrendPeriod calculation in services/sentiment-analyzer.ts
-- [ ] T035 [US2] Configure Chart.js line chart for 7-day sentiment trend in TrendsChart.vue
-- [ ] T036 [US2] Add tooltip interaction for data point details in TrendsChart.vue
-- [ ] T037 [US2] Implement trend data fetching in useSentiment composable (/api/sentiment?include=trend)
-- [ ] T038 [US2] Add visual highlighting for significant sentiment changes (>20% swing) in TrendsChart.vue
-- [ ] T039 [US2] Integrate TrendsChart into pages/index.vue below MoodIndicator
-- [ ] T040 [US2] Add "building trend history" message when <7 days of data in TrendsChart.vue
-- [ ] T041 [US2] Handle missing data points (gaps) visualization in TrendsChart.vue
-- [ ] T042 [US2] Style TrendsChart with responsive container and Nuxt UI theming
+- [ ] T033 [P] [US2] Create TrendChart.vue component in app/components/ with Chart.js line chart integration
+- [ ] T034 [P] [US2] Implement TrendPeriod calculation in app/server/utils/trendCalculator.ts (7-day window, averages, gap detection)
+- [ ] T035 [US2] Configure Chart.js line chart for 7-day sentiment trend in TrendChart.vue (time-series X-axis, sentiment percentage Y-axis)
+- [ ] T036 [US2] Add tooltip interaction for data point details in TrendChart.vue (show date + sentiment value on hover/tap)
+- [ ] T037 [US2] Extend useSentiment composable to fetch trend data from app/server/api/sentiment.get.ts?include=trend
+- [ ] T038 [US2] Add visual highlighting for significant sentiment changes (>20% swing) in TrendChart.vue (color changes, callouts)
+- [ ] T039 [US2] Integrate TrendChart into app/pages/index.vue below MoodIndicator with responsive container
+- [ ] T040 [US2] Add "building trend history" message when <7 days of data in TrendChart.vue per edge case handling
+- [ ] T041 [US2] Handle missing data points (gaps) visualization in TrendChart.vue with clear indication per acceptance scenario 3
+- [ ] T042 [US2] Style TrendChart with Nuxt UI v4 theming and ensure mobile responsiveness
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - visitors see current mood AND historical trends
 
@@ -141,15 +141,15 @@ Web application structure (Nuxt 3 SSG + Netlify Functions):
 
 ### Implementation for User Story 3
 
-- [ ] T043 [P] [US3] Create SentimentBreakdown.vue component in components/ with Chart.js doughnut chart
-- [ ] T044 [US3] Configure Chart.js doughnut chart with color coding in SentimentBreakdown.vue
-- [ ] T045 [US3] Add percentage labels for each sentiment category in SentimentBreakdown.vue
-- [ ] T046 [US3] Implement dominance visual emphasis (>70%) in SentimentBreakdown.vue
-- [ ] T047 [US3] Add breakdown data extraction in useSentiment composable
-- [ ] T048 [US3] Integrate SentimentBreakdown into pages/index.vue below TrendsChart
-- [ ] T049 [US3] Add legend with color-coded labels in SentimentBreakdown.vue
-- [ ] T050 [US3] Validate percentage sum equals 100 with visual indicator
-- [ ] T051 [US3] Style SentimentBreakdown with responsive layout and Nuxt UI components
+- [ ] T043 [P] [US3] Create SentimentBreakdown.vue component in app/components/ with Chart.js doughnut chart
+- [ ] T044 [US3] Configure Chart.js doughnut chart with semantic color coding in SentimentBreakdown.vue (green/gray/red per VD-003)
+- [ ] T045 [US3] Add percentage labels for each sentiment category in SentimentBreakdown.vue (positive/neutral/negative)
+- [ ] T046 [US3] Implement dominance visual emphasis (>70%) in SentimentBreakdown.vue per acceptance scenario 3
+- [ ] T047 [US3] Extend useSentiment composable to extract breakdown data from app/server/api/sentiment.get.ts response
+- [ ] T048 [US3] Integrate SentimentBreakdown into app/pages/index.vue below TrendChart with responsive layout
+- [ ] T049 [US3] Add legend with color-coded labels in SentimentBreakdown.vue for accessibility
+- [ ] T050 [US3] Validate percentage sum equals 100 with visual indicator or assertion in SentimentBreakdown.vue
+- [ ] T051 [US3] Style SentimentBreakdown with Nuxt UI v4 components and ensure mobile responsiveness
 
 **Checkpoint**: All user stories should now be independently functional - full dashboard with mood, trends, and breakdown
 
@@ -159,29 +159,29 @@ Web application structure (Nuxt 3 SSG + Netlify Functions):
 
 **Purpose**: Implement data collection automation and handle edge cases from spec.md
 
-- [ ] T052 Configure Netlify scheduled function for hourly collection in netlify.toml
-- [ ] T053 [P] Implement data staleness detection (24-hour threshold) in useSentiment composable
-- [ ] T054 [P] Add prominent warning display in DataTimestamp.vue when data >24 hours old
-- [ ] T055 Implement 7-day rolling window cleanup in services/data-store.ts
-- [ ] T056 [P] Add error handling for API downtime in services/rss-fetcher.ts
-- [ ] T057 [P] Add rate limit client-side handling (429 response) in useSentiment composable
-- [ ] T058 Implement data retention validation (7-day max) in netlify/functions/collect-sentiment.ts
-- [ ] T059 [P] Add collection duration tracking in netlify/functions/collect-sentiment.ts
-- [ ] T060 [P] Implement confidence score calculation (optional) in services/sentiment-analyzer.ts
+- [ ] T052 Configure Netlify scheduled function cron expression (0 \* \* \* \*) in netlify.toml for hourly collection
+- [ ] T053 [P] Implement data staleness detection (24-hour threshold per FR-008a) in app/composables/useSentiment.ts
+- [ ] T054 [P] Add prominent warning display in DataTimestamp.vue when data >24 hours old per FR-008a
+- [ ] T055 Implement 7-day rolling window cleanup in app/server/utils/storage.ts (delete data points older than 7 days)
+- [ ] T056 [P] Add error handling for API downtime/rate limits in app/server/utils/rssFetcher.ts (graceful fallback per FR-008)
+- [ ] T057 [P] Add rate limit client-side handling (429 response) in app/composables/useSentiment.ts with retry-after header
+- [ ] T058 Implement data retention validation (7-day max per FR-012) in netlify/functions/collect-sentiment.ts
+- [ ] T059 [P] Add collection duration tracking (collectionDurationMs field) in netlify/functions/collect-sentiment.ts
+- [ ] T060 [P] Implement confidence score calculation (optional field) in app/server/utils/sentimentAnalyzer.ts
 
 ---
 
 ## Phase 7: API Completeness & Monitoring
 
-**Purpose**: Implement remaining API endpoints and observability
+**Purpose**: Implement remaining API endpoints per OpenAPI contract and observability
 
-- [ ] T061 [P] Create /api/sentiment/history endpoint in server/api/sentiment/history.get.ts
-- [ ] T062 [P] Create /api/health endpoint in server/api/health.get.ts with source status
-- [ ] T063 Implement query parameter handling (?include=trend|summary|all) in server/api/sentiment.get.ts
-- [ ] T064 [P] Add structured logging to all Netlify Functions (timestamps, errors)
-- [ ] T065 [P] Implement error response standardization per OpenAPI contract in server/api/
-- [ ] T066 Add CDN cache headers (5 min) to /api/sentiment endpoint
-- [ ] T067 [P] Add CORS configuration in server/api/ endpoints
+- [ ] T061 [P] Create /api/sentiment/history endpoint in app/server/api/sentiment/history.get.ts per OpenAPI contract
+- [ ] T062 [P] Create /api/health endpoint in app/server/api/health.get.ts with data source status per OpenAPI contract
+- [ ] T063 Implement query parameter handling (?include=trend|summary|all) in app/server/api/sentiment.get.ts per OpenAPI contract
+- [ ] T064 [P] Add structured logging to all Netlify Functions using Nitro logger (timestamps, errors, performance metrics)
+- [ ] T065 [P] Implement error response standardization per OpenAPI ErrorResponse schema in app/server/api/ endpoints
+- [ ] T066 Add CDN cache headers (5 min max-age) to app/server/api/sentiment.get.ts endpoint for performance
+- [ ] T067 [P] Add CORS configuration in app/server/api/ endpoints if needed for external API access
 
 ---
 
@@ -189,20 +189,20 @@ Web application structure (Nuxt 3 SSG + Netlify Functions):
 
 **Purpose**: Improvements that affect multiple user stories and production readiness
 
-- [ ] T068 [P] Add SEO meta tags (title, description, OG tags) to pages/index.vue
-- [ ] T069 [P] Implement Dutch language static content throughout application
-- [ ] T070 Add playful visual design polish (colors, spacing, typography)
-- [ ] T071 [P] Optimize Chart.js bundle size (tree-shaking, lazy loading)
-- [ ] T072 Run Lighthouse performance audit - target <3s page load
-- [ ] T073 [P] Add favicon and app icons
-- [ ] T074 [P] Create README.md with project overview and quickstart link
-- [ ] T075 Test 100-500 concurrent user capacity with load testing tool
-- [ ] T076 Validate all edge cases from spec.md (no data, missing days, extreme values, data gaps)
-- [ ] T077 [P] Add error boundary for graceful failure handling
-- [ ] T078 Verify rate limiting (20 req/hour) with manual testing
-- [ ] T079 [P] Add deployment preview validation checklist
-- [ ] T080 Run through complete quickstart.md validation
-- [ ] T081 [P] Update .github/copilot-instructions.md with final implementation notes
+- [ ] T068 [P] Add SEO meta tags (title, description, OG tags) to app/pages/index.vue for social sharing
+- [ ] T069 [P] Implement Dutch language static content throughout application (friendly, warm tone per VD-004)
+- [ ] T070 Add playful visual design polish (colors, spacing, typography per VD-004 - bright accessible palette)
+- [ ] T071 [P] Optimize Chart.js bundle size (tree-shaking, lazy loading) in nuxt.config.ts
+- [ ] T072 Run Lighthouse performance audit - target <3s page load per SC-006
+- [ ] T073 [P] Add favicon and app icons to public/ directory
+- [ ] T074 [P] Create/update README.md with project overview and quickstart link
+- [ ] T075 Test 100-500 concurrent user capacity with load testing tool per SC-006a
+- [ ] T076 Validate all edge cases from spec.md (no data, missing days, extreme values 100%, data gaps)
+- [ ] T077 [P] Add error boundary for graceful failure handling in app/app.vue
+- [ ] T078 Verify rate limiting (20 req/hour per IP per FR-010a) with manual curl testing
+- [ ] T079 [P] Add deployment preview validation checklist for Netlify Deploy Previews
+- [ ] T080 Run through complete quickstart.md validation per Phase 1 artifact
+- [ ] T081 [P] Update .github/copilot-instructions.md with final implementation notes (if needed)
 
 ---
 
