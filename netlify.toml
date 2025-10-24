@@ -1,0 +1,10 @@
+# Netlify deployment configuration for Nuxt
+# https://nuxt.com/deploy/netlify
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
