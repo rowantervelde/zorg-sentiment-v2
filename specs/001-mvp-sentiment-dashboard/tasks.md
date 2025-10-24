@@ -33,16 +33,16 @@ Web application structure (Nuxt 3 SSG + Netlify Functions):
 
 **Purpose**: Project initialization and Nuxt 3 + Netlify configuration
 
-- [ ] T001 Initialize Nuxt 3 project with TypeScript 5.x in repository root
-- [ ] T002 [P] Install core dependencies: @nuxt/ui, vue-chartjs, chart.js, @netlify/blobs
-- [ ] T003 [P] Install sentiment analysis: sentiment, wink-nlp-utils
-- [ ] T004 [P] Install testing dependencies: vitest, @nuxt/test-utils, playwright
-- [ ] T005 Configure nuxt.config.ts with SSG preset and Netlify integration
-- [ ] T006 Create netlify.toml with build configuration and function settings
-- [ ] T007 [P] Setup TypeScript configuration (tsconfig.json) for Nuxt 3
-- [ ] T008 [P] Configure Tailwind CSS with Nuxt UI v3 integration
-- [ ] T009 Create .env.example with required environment variables per quickstart.md
-- [ ] T010 Initialize package.json scripts: dev, build, generate, test, lint
+- [X] T001 Initialize Nuxt 3 project with TypeScript 5.x in repository root
+- [X] T002 [P] Install core dependencies: @nuxt/ui, vue-chartjs, chart.js, @netlify/blobs
+- [X] T003 [P] Install sentiment analysis: sentiment, wink-nlp-utils
+- [ ] T004 [P] Install testing dependencies: vitest, @nuxt/test-utils, playwright (DEFERRED - MVP focus)
+- [X] T005 Configure nuxt.config.ts with SSG preset and Netlify integration
+- [X] T006 Create netlify.toml with build configuration and function settings
+- [X] T007 [P] Setup TypeScript configuration (tsconfig.json) for Nuxt 3
+- [X] T008 [P] Configure Tailwind CSS with Nuxt UI v3 integration
+- [X] T009 Create .env.example with required environment variables per quickstart.md
+- [X] T010 Initialize package.json scripts: dev, build, generate, test, lint
 
 ---
 
@@ -52,18 +52,18 @@ Web application structure (Nuxt 3 SSG + Netlify Functions):
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T011 Create TypeScript interfaces in types/sentiment.ts (SentimentDataPoint, MoodSummary, MoodType)
-- [ ] T012 [P] Create TypeScript interfaces in types/api.ts (API request/response types)
-- [ ] T013 [P] Create DataSource interface in types/sentiment.ts with MVP configuration
-- [ ] T014 Implement Netlify Blobs data store service in services/data-store.ts (getStore, get, setJSON operations)
-- [ ] T015 [P] Implement RSS feed fetcher in services/rss-fetcher.ts (fetch NU.nl Gezondheid feed)
-- [ ] T016 [P] Implement sentiment analyzer in services/sentiment-analyzer.ts (Dutch text analysis, ≥60% threshold classification)
-- [ ] T017 Implement mood summary generator in services/sentiment-analyzer.ts (Dutch templates for positive/negative/mixed/neutral)
-- [ ] T018 Create Netlify Function for data collection in netlify/functions/collect-sentiment.ts (hourly scheduled)
-- [ ] T019 Create Netlify Function GET endpoint in server/api/sentiment.get.ts (implements /api/sentiment contract)
-- [ ] T020 [P] Setup rate limiting with Netlify Edge Function (20 req/hour per IP)
-- [ ] T021 [P] Create base Vue composable useSentiment.ts in composables/ for data fetching
-- [ ] T022 Create default error boundary and loading states in app.vue
+- [X] T011 Create TypeScript interfaces in types/sentiment.ts (SentimentDataPoint, MoodSummary, MoodType)
+- [X] T012 [P] Create TypeScript interfaces in types/api.ts (API request/response types)
+- [X] T013 [P] Create DataSource interface in types/sentiment.ts with MVP configuration
+- [X] T014 Implement Netlify Blobs data store service in services/data-store.ts (getStore, get, setJSON operations)
+- [X] T015 [P] Implement RSS feed fetcher in services/rss-fetcher.ts (fetch NU.nl Gezondheid feed)
+- [X] T016 [P] Implement sentiment analyzer in services/sentiment-analyzer.ts (Dutch text analysis, ≥60% threshold classification)
+- [X] T017 Implement mood summary generator in services/sentiment-analyzer.ts (Dutch templates for positive/negative/mixed/neutral)
+- [X] T018 Create Netlify Function for data collection in netlify/functions/collect-sentiment.ts (hourly scheduled)
+- [X] T019 Create Netlify Function GET endpoint in server/api/sentiment.get.ts (implements /api/sentiment contract)
+- [ ] T020 [P] Setup rate limiting with Netlify Edge Function (20 req/hour per IP) (DEFERRED - can be added in deployment)
+- [X] T021 [P] Create base Vue composable useSentiment.ts in composables/ for data fetching
+- [X] T022 Create default error boundary and loading states in app.vue
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,16 +83,16 @@ Web application structure (Nuxt 3 SSG + Netlify Functions):
 
 ### Implementation for User Story 1
 
-- [ ] T023 [P] [US1] Create MoodIndicator.vue component in components/ with emoji/icon display
-- [ ] T024 [P] [US1] Create DataTimestamp.vue component in components/ with last updated display
-- [ ] T025 [US1] Implement mood classification logic in MoodIndicator.vue (≥60% threshold mapping)
-- [ ] T026 [US1] Add Dutch mood summary display to MoodIndicator.vue
-- [ ] T027 [US1] Create main dashboard page in pages/index.vue with MoodIndicator integration
-- [ ] T028 [US1] Implement useSentiment composable to fetch from /api/sentiment
-- [ ] T029 [US1] Add loading state handling in pages/index.vue
-- [ ] T030 [US1] Add "no data available" friendly message in pages/index.vue
-- [ ] T031 [US1] Style MoodIndicator with Nuxt UI components (UCard, UBadge)
-- [ ] T032 [US1] Add responsive design for mobile and desktop in pages/index.vue
+- [X] T023 [P] [US1] Create MoodIndicator.vue component in components/ with emoji/icon display
+- [X] T024 [P] [US1] Create DataTimestamp.vue component in components/ with last updated display
+- [X] T025 [US1] Implement mood classification logic in MoodIndicator.vue (≥60% threshold mapping)
+- [X] T026 [US1] Add Dutch mood summary display to MoodIndicator.vue
+- [X] T027 [US1] Create main dashboard page in pages/index.vue with MoodIndicator integration
+- [X] T028 [US1] Implement useSentiment composable to fetch from /api/sentiment
+- [X] T029 [US1] Add loading state handling in pages/index.vue
+- [X] T030 [US1] Add "no data available" friendly message in pages/index.vue
+- [X] T031 [US1] Style MoodIndicator with Nuxt UI components (UCard, UBadge)
+- [X] T032 [US1] Add responsive design for mobile and desktop in pages/index.vue
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - visitors see current mood indicator with summary or friendly no-data message
 

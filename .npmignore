@@ -1,0 +1,24 @@
+# Development files
+.vscode/
+.github/
+.specify/
+specs/
+
+# Tests
+tests/
+*.spec.ts
+*.test.ts
+
+# Build files
+.nuxt/
+.output/
+
+# Environment
+.env
+.env.*
+
+# Logs
+*.log
+
+# Documentation
+README.md
