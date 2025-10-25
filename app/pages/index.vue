@@ -26,7 +26,7 @@
           We konden de sentimentgegevens niet ophalen. Probeer het later opnieuw.
         </p>
         <button 
-          @click="refresh" 
+          @click="refreshData" 
           class="retry-button"
           aria-label="Opnieuw proberen"
         >
@@ -62,6 +62,13 @@
           :is-stale="state.isStale"
         />
 
+        <!-- Trend Chart (User Story 2 - T039) -->
+        <TrendChart
+          v-if="state.trend"
+          :trend="state.trend"
+          class="trend-section"
+        />
+
         <!-- Data Source Info -->
         <div class="data-source">
           <p class="source-text">
@@ -81,15 +88,20 @@
 </template>
 
 <script setup lang="ts">
-// Use sentiment composable (T028)
-const { state, hasData, isLoading, hasError, fetchCurrent, refresh } = useSentiment();
+// Use sentiment composable (T028, T037)
+const { state, hasData, isLoading, hasError, fetchWithTrend } = useSentiment();
 
 // No data message (T030)
 const noDataMessage = 'We verzamelen nog gegevens over de stemming. Check straks terug!';
 
-// Fetch data on mount
+// Refresh function that fetches with trend data
+const refreshData = async () => {
+  await fetchWithTrend();
+};
+
+// Fetch data on mount - now includes trend data (T037)
 onMounted(async () => {
-  await fetchCurrent();
+  await fetchWithTrend();
 });
 
 // Set page meta
@@ -274,6 +286,11 @@ useHead({
 }
 
 .mood-card {
+  width: 100%;
+}
+
+/* Trend Section (T039) */
+.trend-section {
   width: 100%;
 }
 

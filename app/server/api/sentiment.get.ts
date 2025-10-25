@@ -26,7 +26,7 @@ export default defineEventHandler(async (event): Promise<SentimentResponse> => {
 
     // Include trend data if requested
     if (include === 'trend' || include === 'all') {
-      response.trend = await calculateTrendPeriod();
+      response.trend = await calculateTrendPeriod(event);
     }
 
     // Include summary if requested
@@ -51,13 +51,21 @@ export default defineEventHandler(async (event): Promise<SentimentResponse> => {
 });
 
 /**
- * Calculate trend period for the last 7 days
+ * Calculate trend period for the last N hours (default: 7 days = 168 hours)
  */
-async function calculateTrendPeriod(): Promise<TrendPeriod> {
+async function calculateTrendPeriod(event: any): Promise<TrendPeriod> {
   const now = new Date();
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  
+  // Use runtime config - pass event to ensure env vars are read at runtime
+  const config = useRuntimeConfig(event);
+  const trendWindowHours = config.trendWindowHours;
+  
+  console.log('[API sentiment] Trend window hours:', trendWindowHours);
+  console.log('[API sentiment] Runtime config:', config);
+  
+  const startTime = new Date(now.getTime() - trendWindowHours * 60 * 60 * 1000);
 
-  const dataPoints = await getDataPointsInRange(sevenDaysAgo, now);
+  const dataPoints = await getDataPointsInRange(startTime, now);
 
   // Calculate averages
   const avgPositive = Math.round(
@@ -81,10 +89,10 @@ async function calculateTrendPeriod(): Promise<TrendPeriod> {
     (moodCounts[a] ?? 0) > (moodCounts[b] ?? 0) ? a : b
   , 'neutral') as SentimentDataPoint['moodClassification'];
 
-  const expectedHours = 7 * 24; // 168 hours
+  const expectedHours = trendWindowHours;
 
   return {
-    startDate: sevenDaysAgo.toISOString(),
+    startDate: startTime.toISOString(),
     endDate: now.toISOString(),
     dataPoints,
     averageMood: {

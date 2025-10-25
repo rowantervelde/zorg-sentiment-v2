@@ -112,16 +112,16 @@ Web application structure (Nuxt 4.1.3 with `app/` directory + Netlify Functions)
 
 ### Implementation for User Story 2
 
-- [ ] T033 [P] [US2] Create TrendChart.vue component in app/components/ with Chart.js line chart integration
-- [ ] T034 [P] [US2] Implement TrendPeriod calculation in app/server/utils/trendCalculator.ts (7-day window, averages, gap detection)
-- [ ] T035 [US2] Configure Chart.js line chart for 7-day sentiment trend in TrendChart.vue (time-series X-axis, sentiment percentage Y-axis)
-- [ ] T036 [US2] Add tooltip interaction for data point details in TrendChart.vue (show date + sentiment value on hover/tap)
-- [ ] T037 [US2] Extend useSentiment composable to fetch trend data from app/server/api/sentiment.get.ts?include=trend
-- [ ] T038 [US2] Add visual highlighting for significant sentiment changes (>20% swing) in TrendChart.vue (color changes, callouts)
-- [ ] T039 [US2] Integrate TrendChart into app/pages/index.vue below MoodIndicator with responsive container
-- [ ] T040 [US2] Add "building trend history" message when <7 days of data in TrendChart.vue per edge case handling
-- [ ] T041 [US2] Handle missing data points (gaps) visualization in TrendChart.vue with clear indication per acceptance scenario 3
-- [ ] T042 [US2] Style TrendChart with Nuxt UI v4 theming and ensure mobile responsiveness
+- [x] T033 [P] [US2] Create TrendChart.vue component in app/components/ with Chart.js line chart integration ✅
+- [x] T034 [P] [US2] Implement TrendPeriod calculation in app/server/utils/trendCalculator.ts (7-day window, averages, gap detection) ✅
+- [x] T035 [US2] Configure Chart.js line chart for 7-day sentiment trend in TrendChart.vue (time-series X-axis, sentiment percentage Y-axis) ✅
+- [x] T036 [US2] Add tooltip interaction for data point details in TrendChart.vue (show date + sentiment value on hover/tap) ✅
+- [x] T037 [US2] Extend useSentiment composable to fetch trend data from app/server/api/sentiment.get.ts?include=trend ✅
+- [x] T038 [US2] Add visual highlighting for significant sentiment changes (>20% swing) in TrendChart.vue (color changes, callouts) ✅
+- [x] T039 [US2] Integrate TrendChart into app/pages/index.vue below MoodIndicator with responsive container ✅
+- [x] T040 [US2] Add "building trend history" message when <7 days of data in TrendChart.vue per edge case handling ✅
+- [x] T041 [US2] Handle missing data points (gaps) visualization in TrendChart.vue with clear indication per acceptance scenario 3 ✅
+- [x] T042 [US2] Style TrendChart with Nuxt UI v4 theming and ensure mobile responsiveness ✅
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - visitors see current mood AND historical trends
 
