@@ -7,15 +7,54 @@
 import type { SentimentResponse } from '~/types/api';
 import type { SentimentDataPoint, TrendPeriod } from '~/types/sentiment';
 import { getCurrentDataPoint, getDataPointsInRange, isDataStale } from '../utils/storage';
+import { StandardErrors } from '../utils/errorResponse';
 
 export default defineEventHandler(async (event): Promise<SentimentResponse> => {
   const query = getQuery(event);
   const include = (query.include as string) || '';
+  const requestId = event.context.requestId || Math.random().toString(36).substring(7);
+
+  // Structured logging with request context
+  const logger = {
+    info: (message: string, meta?: Record<string, any>) => {
+      console.log(JSON.stringify({
+        level: 'info',
+        timestamp: new Date().toISOString(),
+        requestId,
+        endpoint: '/api/sentiment',
+        message,
+        ...meta,
+      }));
+    },
+    error: (message: string, error?: any, meta?: Record<string, any>) => {
+      console.error(JSON.stringify({
+        level: 'error',
+        timestamp: new Date().toISOString(),
+        requestId,
+        endpoint: '/api/sentiment',
+        message,
+        error: error instanceof Error ? {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+        } : error,
+        ...meta,
+      }));
+    },
+  };
+
+  logger.info('Sentiment data requested', { include });
 
   try {
     // Get current data point
     const current = await getCurrentDataPoint();
     const stale = await isDataStale();
+
+    logger.info('Data fetched', { 
+      hasData: !!current, 
+      isStale: stale,
+      dataTimestamp: current?.timestamp,
+    });
 
     // Base response
     const response: SentimentResponse = {
@@ -26,11 +65,13 @@ export default defineEventHandler(async (event): Promise<SentimentResponse> => {
 
     // Include trend data if requested
     if (include === 'trend' || include === 'all') {
+      logger.info('Including trend data');
       response.trend = await calculateTrendPeriod(event);
     }
 
     // Include summary if requested
     if (include === 'summary' || include === 'all') {
+      logger.info('Including summary data');
       response.summary = current?.summary;
     }
 
@@ -38,15 +79,18 @@ export default defineEventHandler(async (event): Promise<SentimentResponse> => {
     setResponseHeaders(event, {
       'Cache-Control': 'public, max-age=300, s-maxage=300',
       'Content-Type': 'application/json',
+      'X-Request-ID': requestId,
+    });
+
+    logger.info('Response sent successfully', { 
+      includesTrend: !!response.trend,
+      includesSummary: !!response.summary,
     });
 
     return response;
   } catch (error) {
-    console.error('[API /sentiment] Error:', error);
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to fetch sentiment data',
-    });
+    logger.error('Failed to fetch sentiment data', error);
+    throw StandardErrors.internalError('Failed to fetch sentiment data');
   }
 });
 

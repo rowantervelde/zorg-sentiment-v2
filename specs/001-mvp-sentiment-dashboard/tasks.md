@@ -180,13 +180,13 @@ Web application structure (Nuxt 4.1.3 with `app/` directory + Netlify Functions)
 
 **Purpose**: Implement remaining API endpoints per OpenAPI contract and observability
 
-- [ ] T061 [P] Create /api/sentiment/history endpoint in app/server/api/sentiment/history.get.ts per OpenAPI contract
-- [ ] T062 [P] Create /api/health endpoint in app/server/api/health.get.ts with data source status per OpenAPI contract
-- [ ] T063 Implement query parameter handling (?include=trend|summary|all) in app/server/api/sentiment.get.ts per OpenAPI contract
-- [ ] T064 [P] Add structured logging to all Netlify Functions using Nitro logger (timestamps, errors, performance metrics)
-- [ ] T065 [P] Implement error response standardization per OpenAPI ErrorResponse schema in app/server/api/ endpoints
-- [ ] T066 Add CDN cache headers (5 min max-age) to app/server/api/sentiment.get.ts endpoint for performance
-- [ ] T067 [P] Add CORS configuration in app/server/api/ endpoints if needed for external API access
+- [x] T061 [P] Create /api/sentiment/history endpoint in app/server/api/sentiment/history.get.ts per OpenAPI contract ✅
+- [x] T062 [P] Create /api/health endpoint in app/server/api/health.get.ts with data source status per OpenAPI contract ✅
+- [x] T063 Implement query parameter handling (?include=trend|summary|all) in app/server/api/sentiment.get.ts per OpenAPI contract ✅
+- [x] T064 [P] Add structured logging to all Netlify Functions using Nitro logger (timestamps, errors, performance metrics) ✅
+- [x] T065 [P] Implement error response standardization per OpenAPI ErrorResponse schema in app/server/api/ endpoints ✅
+- [x] T066 Add CDN cache headers (5 min max-age) to app/server/api/sentiment.get.ts endpoint for performance ✅
+- [x] T067 [P] Add CORS configuration in app/server/api/ endpoints if needed for external API access ✅
 
 ---
 
