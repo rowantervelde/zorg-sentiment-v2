@@ -5,6 +5,7 @@
 .nitro
 .cache
 dist
+build
 
 # Node dependencies
 node_modules
@@ -17,6 +18,10 @@ logs
 .DS_Store
 .fleet
 .idea
+Thumbs.db
+*.tmp
+*.swp
+.vscode/settings.json
 
 # Local env files
 .env
@@ -25,3 +30,10 @@ logs
 
 # Local Netlify folder
 .netlify
+
+# Test coverage
+coverage
+.nyc_output
+
+# TypeScript
+*.tsbuildinfo

@@ -74,10 +74,26 @@ export default async (req: Request) => {
 
     console.log('[Collect Sentiment] Generated summary:', moodSummary.text);
 
-    // Step 4: Store data point
-    console.log('[Collect Sentiment] Saving data point...');
+    // Step 4: Store data point with 7-day retention validation (FR-012)
+    console.log('[Collect Sentiment] Saving data point with 7-day retention validation...');
     await addDataPoint(dataPoint);
     await updateDataSourceStatus(SOURCE_ID, true);
+
+    // Verify data retention (7-day max per FR-012)
+    const { getData } = await import('../../server/utils/storage');
+    const history = await getData();
+    const retentionDays = history.retentionDays;
+    const oldestAllowed = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000);
+    
+    const violatingPoints = history.dataPoints.filter(
+      (dp) => new Date(dp.timestamp) < oldestAllowed
+    );
+    
+    if (violatingPoints.length > 0) {
+      console.warn(`[Collect Sentiment] Found ${violatingPoints.length} data points older than ${retentionDays} days (should have been cleaned up)`);
+    } else {
+      console.log(`[Collect Sentiment] Data retention validation passed: all ${history.dataPoints.length} points within ${retentionDays}-day window`);
+    }
 
     const duration = Date.now() - startTime;
     console.log(`[Collect Sentiment] Collection complete in ${duration}ms`);

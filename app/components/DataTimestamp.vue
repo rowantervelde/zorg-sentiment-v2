@@ -6,11 +6,16 @@
       <span class="timestamp-value">{{ formattedTime }}</span>
     </div>
 
-    <!-- Stale Data Warning (FR-008a: >24 hours) -->
-    <div v-if="isStale" class="stale-warning" role="alert">
-      <span class="warning-icon" aria-hidden="true">⚠️</span>
-      <span class="warning-text">{{ staleWarning }}</span>
-    </div>
+    <!-- Stale Data Warning (FR-008a: >24 hours) using Nuxt UI Alert -->
+    <UAlert
+      v-if="isStale"
+      color="warning"
+      variant="subtle"
+      icon="i-lucide-triangle-alert"
+      :title="staleWarning"
+      :description="staleDescription"
+      :ui="{ root: 'max-w-md', icon: 'size-5' }"
+    />
   </div>
 </template>
 
@@ -84,6 +89,14 @@ const staleWarning = computed(() => {
   
   return `Data is ${daysOld} dagen oud`;
 });
+
+/**
+ * Additional context for stale warning
+ */
+const staleDescription = computed(() => {
+  if (!props.isStale) return '';
+  return 'De weergegeven sentimentdata komt mogelijk niet overeen met de huidige situatie.';
+});
 </script>
 
 <style scoped>
@@ -113,30 +126,6 @@ const staleWarning = computed(() => {
   opacity: 0.9;
 }
 
-/* Stale Warning (FR-008a: prominent when >24 hours) */
-.stale-warning {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background-color: #fef3c7; /* yellow-100 */
-  border: 1px solid #fbbf24; /* yellow-400 */
-  border-radius: 0.5rem;
-  color: #92400e; /* yellow-900 */
-  font-size: 0.875rem;
-  font-weight: 500;
-  max-width: 400px;
-}
-
-.warning-icon {
-  font-size: 1.25rem;
-  line-height: 1;
-}
-
-.warning-text {
-  line-height: 1.4;
-}
-
 /* Responsive Design (RD-001: mobile <768px) */
 @media (max-width: 767px) {
   .data-timestamp {
@@ -148,28 +137,12 @@ const staleWarning = computed(() => {
     gap: 0.25rem;
     text-align: center;
   }
-
-  .stale-warning {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.8125rem;
-    max-width: 100%;
-  }
-
-  .warning-icon {
-    font-size: 1.125rem;
-  }
 }
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .timestamp-display {
     color: #9ca3af; /* gray-400 */
-  }
-
-  .stale-warning {
-    background-color: #451a03; /* yellow-950 */
-    border-color: #92400e; /* yellow-900 */
-    color: #fef3c7; /* yellow-100 */
   }
 }
 </style>

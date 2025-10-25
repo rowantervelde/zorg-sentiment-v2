@@ -164,15 +164,15 @@ Web application structure (Nuxt 4.1.3 with `app/` directory + Netlify Functions)
 
 **Purpose**: Implement data collection automation and handle edge cases from spec.md
 
-- [ ] T052 Configure Netlify scheduled function cron expression (0 \* \* \* \*) in netlify.toml for hourly collection
-- [ ] T053 [P] Implement data staleness detection (24-hour threshold per FR-008a) in app/composables/useSentiment.ts
-- [ ] T054 [P] Add prominent warning display in DataTimestamp.vue when data >24 hours old per FR-008a
-- [ ] T055 Implement 7-day rolling window cleanup in app/server/utils/storage.ts (delete data points older than 7 days)
-- [ ] T056 [P] Add error handling for API downtime/rate limits in app/server/utils/rssFetcher.ts (graceful fallback per FR-008)
-- [ ] T057 [P] Add rate limit client-side handling (429 response) in app/composables/useSentiment.ts with retry-after header
-- [ ] T058 Implement data retention validation (7-day max per FR-012) in netlify/functions/collect-sentiment.ts
-- [ ] T059 [P] Add collection duration tracking (collectionDurationMs field) in netlify/functions/collect-sentiment.ts
-- [ ] T060 [P] Implement confidence score calculation (optional field) in app/server/utils/sentimentAnalyzer.ts
+- [x] T052 Configure Netlify scheduled function cron expression (0 \* \* \* \*) in netlify.toml for hourly collection ✅
+- [x] T053 [P] Implement data staleness detection (24-hour threshold per FR-008a) in app/composables/useSentiment.ts ✅
+- [x] T054 [P] Add prominent warning display in DataTimestamp.vue when data >24 hours old per FR-008a ✅
+- [x] T055 Implement 7-day rolling window cleanup in app/server/utils/storage.ts (delete data points older than 7 days) ✅
+- [x] T056 [P] Add error handling for API downtime/rate limits in app/server/utils/rssFetcher.ts (graceful fallback per FR-008) ✅
+- [x] T057 [P] Add rate limit client-side handling (429 response) in app/composables/useSentiment.ts with retry-after header ✅
+- [x] T058 Implement data retention validation (7-day max per FR-012) in netlify/functions/collect-sentiment.ts ✅
+- [x] T059 [P] Add collection duration tracking (collectionDurationMs field) in netlify/functions/collect-sentiment.ts ✅
+- [x] T060 [P] Implement confidence score calculation (optional field) in app/server/utils/sentimentAnalyzer.ts ✅
 
 ---
 

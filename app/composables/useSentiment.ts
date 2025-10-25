@@ -14,6 +14,8 @@ export interface SentimentState {
   loading: boolean;
   error: Error | null;
   lastUpdated: string | null;
+  rateLimitExceeded: boolean;
+  retryAfter: number | null; // Seconds until retry allowed
 }
 
 export function useSentiment() {
@@ -25,14 +27,18 @@ export function useSentiment() {
     loading: false,
     error: null,
     lastUpdated: null,
+    rateLimitExceeded: false,
+    retryAfter: null,
   }));
 
   /**
    * Fetch current sentiment data
+   * Enhanced with rate limit handling per FR-010a
    */
   async function fetchCurrent() {
     state.value.loading = true;
     state.value.error = null;
+    state.value.rateLimitExceeded = false;
 
     try {
       const response = await $fetch<SentimentResponse>('/api/sentiment');
@@ -41,19 +47,35 @@ export function useSentiment() {
       state.value.isStale = response.isStale;
       state.value.lastUpdated = response.timestamp;
       state.value.loading = false;
-    } catch (err) {
-      state.value.error = err as Error;
+    } catch (err: any) {
       state.value.loading = false;
-      console.error('[useSentiment] Error fetching current data:', err);
+
+      // Handle 429 Rate Limit response
+      if (err.response?.status === 429 || err.statusCode === 429) {
+        state.value.rateLimitExceeded = true;
+        
+        // Extract Retry-After header (in seconds)
+        const retryAfterHeader = err.response?.headers?.get('Retry-After') || err.data?.retryAfter;
+        state.value.retryAfter = retryAfterHeader ? parseInt(retryAfterHeader) : 60;
+        
+        state.value.error = new Error(`Snelheidsbeperking bereikt. Probeer het over ${state.value.retryAfter} seconden opnieuw.`);
+        
+        console.warn('[useSentiment] Rate limit exceeded (429). Retry after:', state.value.retryAfter);
+      } else {
+        state.value.error = err as Error;
+        console.error('[useSentiment] Error fetching current data:', err);
+      }
     }
   }
 
   /**
    * Fetch sentiment data with trend
+   * Enhanced with rate limit handling per FR-010a
    */
   async function fetchWithTrend() {
     state.value.loading = true;
     state.value.error = null;
+    state.value.rateLimitExceeded = false;
 
     try {
       const response = await $fetch<SentimentResponse>('/api/sentiment?include=trend');
@@ -63,19 +85,34 @@ export function useSentiment() {
       state.value.isStale = response.isStale;
       state.value.lastUpdated = response.timestamp;
       state.value.loading = false;
-    } catch (err) {
-      state.value.error = err as Error;
+    } catch (err: any) {
       state.value.loading = false;
-      console.error('[useSentiment] Error fetching trend data:', err);
+
+      // Handle 429 Rate Limit response
+      if (err.response?.status === 429 || err.statusCode === 429) {
+        state.value.rateLimitExceeded = true;
+        
+        const retryAfterHeader = err.response?.headers?.get('Retry-After') || err.data?.retryAfter;
+        state.value.retryAfter = retryAfterHeader ? parseInt(retryAfterHeader) : 60;
+        
+        state.value.error = new Error(`Snelheidsbeperking bereikt. Probeer het over ${state.value.retryAfter} seconden opnieuw.`);
+        
+        console.warn('[useSentiment] Rate limit exceeded (429). Retry after:', state.value.retryAfter);
+      } else {
+        state.value.error = err as Error;
+        console.error('[useSentiment] Error fetching trend data:', err);
+      }
     }
   }
 
   /**
    * Fetch all sentiment data (current + trend + summary)
+   * Enhanced with rate limit handling per FR-010a
    */
   async function fetchAll() {
     state.value.loading = true;
     state.value.error = null;
+    state.value.rateLimitExceeded = false;
 
     try {
       const response = await $fetch<SentimentResponse>('/api/sentiment?include=all');
@@ -86,10 +123,23 @@ export function useSentiment() {
       state.value.isStale = response.isStale;
       state.value.lastUpdated = response.timestamp;
       state.value.loading = false;
-    } catch (err) {
-      state.value.error = err as Error;
+    } catch (err: any) {
       state.value.loading = false;
-      console.error('[useSentiment] Error fetching all data:', err);
+
+      // Handle 429 Rate Limit response
+      if (err.response?.status === 429 || err.statusCode === 429) {
+        state.value.rateLimitExceeded = true;
+        
+        const retryAfterHeader = err.response?.headers?.get('Retry-After') || err.data?.retryAfter;
+        state.value.retryAfter = retryAfterHeader ? parseInt(retryAfterHeader) : 60;
+        
+        state.value.error = new Error(`Snelheidsbeperking bereikt. Probeer het over ${state.value.retryAfter} seconden opnieuw.`);
+        
+        console.warn('[useSentiment] Rate limit exceeded (429). Retry after:', state.value.retryAfter);
+      } else {
+        state.value.error = err as Error;
+        console.error('[useSentiment] Error fetching all data:', err);
+      }
     }
   }
 
