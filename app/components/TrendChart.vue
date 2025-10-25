@@ -58,7 +58,7 @@ import {
   type ChartData,
 } from 'chart.js';
 import type { TrendPeriod } from '~/types/sentiment';
-import { detectDataGaps, detectSignificantChanges, getTrendDescription } from '~/server/utils/trendCalculator';
+import { detectDataGaps, detectSignificantChanges, getTrendDescription } from '~/composables/useTrendAnalysis';
 
 // Register Chart.js components
 ChartJS.register(
