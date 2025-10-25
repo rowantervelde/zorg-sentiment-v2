@@ -52,18 +52,18 @@ Web application structure (Nuxt 4.1.3 with `app/` directory + Netlify Functions)
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T011 Create TypeScript interfaces in app/types/sentiment.ts (SentimentDataPoint, MoodSummary, TrendPeriod, MoodType)
-- [ ] T012 [P] Create TypeScript interfaces in app/types/api.ts (API request/response types per OpenAPI contract)
-- [ ] T013 [P] Create DataSource interface in app/types/sentiment.ts with MVP configuration
-- [ ] T014 Implement Netlify Blobs storage utility in app/server/utils/storage.ts (getStore, getData, saveData, cleanup7DayWindow)
-- [ ] T015 [P] Implement RSS feed fetcher in app/server/utils/rssFetcher.ts (fetch NU.nl Gezondheid feed, parse XML to articles)
-- [ ] T016 [P] Implement sentiment analyzer in app/server/utils/sentimentAnalyzer.ts (Dutch text analysis via Google Cloud Natural Language API or sentiment package, classify with ≥60% threshold)
-- [ ] T017 Implement mood summary generator in app/server/utils/moodSummary.ts (Dutch templates for positive/negative/mixed/neutral with emoji)
-- [ ] T018 Create Netlify scheduled function in netlify/functions/collect-sentiment.ts (hourly RSS fetch + analysis + Blob storage)
-- [ ] T019 Create sentiment API endpoint in app/server/api/sentiment.get.ts (returns current + trends + breakdown per OpenAPI contract)
-- [ ] T020 [P] Setup rate limiting middleware in app/server/middleware/rateLimit.ts (20 req/hour per IP using Nitro context.ip)
-- [ ] T021 [P] Create base Vue composable useSentiment.ts in app/composables/ for API data fetching with reactive state
-- [ ] T022 Update app/app.vue to remove NuxtWelcome and setup proper app layout with error boundary
+- [x] T011 Create TypeScript interfaces in app/types/sentiment.ts (SentimentDataPoint, MoodSummary, TrendPeriod, MoodType) ✅
+- [x] T012 [P] Create TypeScript interfaces in app/types/api.ts (API request/response types per OpenAPI contract) ✅
+- [x] T013 [P] Create DataSource interface in app/types/sentiment.ts with MVP configuration ✅
+- [x] T014 Implement Netlify Blobs storage utility in app/server/utils/storage.ts (getStore, getData, saveData, cleanup7DayWindow) ✅
+- [x] T015 [P] Implement RSS feed fetcher in app/server/utils/rssFetcher.ts (fetch NU.nl Gezondheid feed, parse XML to articles) ✅
+- [x] T016 [P] Implement sentiment analyzer in app/server/utils/sentimentAnalyzer.ts (Dutch text analysis via Google Cloud Natural Language API or sentiment package, classify with ≥60% threshold) ✅
+- [x] T017 Implement mood summary generator in app/server/utils/moodSummary.ts (Dutch templates for positive/negative/mixed/neutral with emoji) ✅
+- [x] T018 Create Netlify scheduled function in netlify/functions/collect-sentiment.ts (hourly RSS fetch + analysis + Blob storage) ✅
+- [x] T019 Create sentiment API endpoint in app/server/api/sentiment.get.ts (returns current + trends + breakdown per OpenAPI contract) ✅
+- [x] T020 [P] Setup rate limiting middleware in app/server/middleware/rateLimit.ts (20 req/hour per IP using Nitro context.ip) ✅
+- [x] T021 [P] Create base Vue composable useSentiment.ts in app/composables/ for API data fetching with reactive state ✅
+- [x] T022 Update app/app.vue to remove NuxtWelcome and setup proper app layout with error boundary ✅
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
