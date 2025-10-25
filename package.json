@@ -22,6 +22,7 @@
     "wink-nlp-utils": "^2.1.0"
   },
   "devDependencies": {
+    "@netlify/functions": "^5.0.1",
     "@types/sentiment": "^5.0.4"
   }
 }
