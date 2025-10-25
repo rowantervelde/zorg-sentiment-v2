@@ -8,7 +8,22 @@
 
 [build.environment]
   NODE_VERSION = "20"
+
+# Production context: environment variables for production deploys
+[context.production.environment]
   NUXT_TREND_WINDOW_HOURS = "4"
+
+# Deploy Preview context: environment variables for pull/merge request previews
+[context.deploy-preview.environment]
+  NUXT_TREND_WINDOW_HOURS = "4"
+
+# Branch Deploy context: environment variables for branch deploys
+[context.branch-deploy.environment]
+  NUXT_TREND_WINDOW_HOURS = "4"
+
+# Dev context: environment variables for local development (netlify dev)
+[context.dev.environment]
+  NUXT_TREND_WINDOW_HOURS = "6"
 
 # Scheduled function for hourly sentiment data collection
 [functions."collect-sentiment"]
