@@ -83,16 +83,16 @@ Web application structure (Nuxt 4.1.3 with `app/` directory + Netlify Functions)
 
 ### Implementation for User Story 1
 
-- [ ] T023 [P] [US1] Create MoodIndicator.vue component in app/components/ with emoji display (😊/😐/😟, sizes per VD-002, colors per VD-003, ARIA labels per A11Y-001/A11Y-002)
-- [ ] T024 [P] [US1] Create DataTimestamp.vue component in app/components/ with last updated display and staleness warning
-- [ ] T025 [US1] Implement mood classification logic in MoodIndicator.vue (≥60% threshold mapping to emoji + color)
-- [ ] T026 [US1] Add Dutch mood summary display to MoodIndicator.vue (max 200 chars per VD-005)
-- [ ] T027 [US1] Create main dashboard page in app/pages/index.vue with MoodIndicator integration (layout per VD-006, responsive per RD-001/RD-002)
-- [ ] T028 [US1] Implement useSentiment composable to fetch from app/server/api/sentiment.get.ts with error handling
-- [ ] T029 [US1] Add loading state handling in app/pages/index.vue (skeleton UI or spinner)
-- [ ] T030 [US1] Add "no data available" friendly Dutch message in app/pages/index.vue per acceptance scenario 3
-- [ ] T031 [US1] Style MoodIndicator with Nuxt UI v4 components (UCard, UBadge) and verify contrast ratios per A11Y-003
-- [ ] T032 [US1] Add responsive design for mobile (<768px) and desktop (≥768px) in app/pages/index.vue per RD-001/RD-002/RD-003
+- [x] T023 [P] [US1] Create MoodIndicator.vue component in app/components/ with emoji display (😊/😐/😟, sizes per VD-002, colors per VD-003, ARIA labels per A11Y-001/A11Y-002) ✅
+- [x] T024 [P] [US1] Create DataTimestamp.vue component in app/components/ with last updated display and staleness warning ✅
+- [x] T025 [US1] Implement mood classification logic in MoodIndicator.vue (≥60% threshold mapping to emoji + color) ✅
+- [x] T026 [US1] Add Dutch mood summary display to MoodIndicator.vue (max 200 chars per VD-005) ✅
+- [x] T027 [US1] Create main dashboard page in app/pages/index.vue with MoodIndicator integration (layout per VD-006, responsive per RD-001/RD-002) ✅
+- [x] T028 [US1] Implement useSentiment composable to fetch from app/server/api/sentiment.get.ts with error handling ✅
+- [x] T029 [US1] Add loading state handling in app/pages/index.vue (skeleton UI or spinner) ✅
+- [x] T030 [US1] Add "no data available" friendly Dutch message in app/pages/index.vue per acceptance scenario 3 ✅
+- [x] T031 [US1] Style MoodIndicator with Nuxt UI v4 components (UCard, UBadge) and verify contrast ratios per A11Y-003 ✅
+- [x] T032 [US1] Add responsive design for mobile (<768px) and desktop (≥768px) in app/pages/index.vue per RD-001/RD-002/RD-003 ✅
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - visitors see current mood indicator with summary or friendly no-data message
 
