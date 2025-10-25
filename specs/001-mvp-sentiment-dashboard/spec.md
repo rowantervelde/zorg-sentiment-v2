@@ -49,19 +49,24 @@ A visitor wants to understand how sentiment has changed over recent days or week
 
 ---
 
-### User Story 3 - Understand Sentiment Breakdown (Priority: P3)
+### User Story 3 - Understand Sentiment Breakdown (Priority: P3) → **MERGED INTO US1**
 
-A curious visitor wants to see more detail behind the overall mood. They view a breakdown showing the proportion of positive, neutral, and negative sentiment.
+~~A curious visitor wants to see more detail behind the overall mood. They view a breakdown showing the proportion of positive, neutral, and negative sentiment.~~
 
-**Why this priority**: This provides transparency and builds trust. Users can see that the "mood" isn't just a black box, but is based on actual distribution of opinions.
+**DESIGN CHANGE (2025-10-25)**: Sentiment breakdown percentages are now integrated directly into the MoodIndicator component (User Story 1) to avoid UI duplication and reduce MVP complexity. The breakdown is displayed below the emoji and summary text as color-coded percentage badges within the same component.
 
-**Independent Test**: Can be fully tested by viewing the sentiment breakdown visualization and verifying percentages add up to 100%. Delivers value by showing the composition of the overall mood.
+**Why this change**: During implementation, we discovered that showing breakdown percentages in a separate component (doughnut chart) created information duplication - the same percentages were already shown in MoodIndicator. For MVP simplicity, we consolidated the breakdown display into a single location.
 
-**Acceptance Scenarios**:
+**Implementation**: Breakdown percentages (positive/neutral/negative) are displayed within `MoodIndicator.vue` component using the existing `showBreakdown` prop, eliminating the need for a separate `SentimentBreakdown.vue` component. All acceptance scenarios below are fulfilled by the integrated display.
 
-1. **Given** the app has sentiment data, **When** a visitor views the breakdown section, **Then** they see percentages or proportions for positive, neutral, and negative sentiment
-2. **Given** the breakdown is displayed, **When** a visitor views the visualization, **Then** the three categories are clearly distinguished by color or labeling
-3. **Given** one sentiment category dominates (e.g., >70%), **When** the visitor views the breakdown, **Then** this dominance is visually apparent
+**Original Acceptance Scenarios** (now part of User Story 1):
+
+1. ~~**Given** the app has sentiment data, **When** a visitor views the breakdown section, **Then** they see percentages or proportions for positive, neutral, and negative sentiment~~
+   → **Now fulfilled by**: MoodIndicator component displays percentages when `showBreakdown={true}`
+2. ~~**Given** the breakdown is displayed, **When** a visitor views the visualization, **Then** the three categories are clearly distinguished by color or labeling~~
+   → **Now fulfilled by**: Color-coded badges (green/gray/red per VD-003) distinguish categories in MoodIndicator
+3. ~~**Given** one sentiment category dominates (e.g., >70%), **When** the visitor views the breakdown, **Then** this dominance is visually apparent~~
+   → **Now fulfilled by**: Dominant percentages can be emphasized with bold styling in MoodIndicator
 
 ---
 

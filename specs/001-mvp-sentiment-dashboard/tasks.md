@@ -123,35 +123,40 @@ Web application structure (Nuxt 4.1.3 with `app/` directory + Netlify Functions)
 - [x] T041 [US2] Handle missing data points (gaps) visualization in TrendChart.vue with clear indication per acceptance scenario 3 ✅
 - [x] T042 [US2] Style TrendChart with Nuxt UI v4 theming and ensure mobile responsiveness ✅
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work - visitors see current mood AND historical trends
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work - visitors see current mood (with breakdown) AND historical trends
 
 ---
 
-## Phase 5: User Story 3 - Understand Sentiment Breakdown (Priority: P3)
+## ~~Phase 5: User Story 3 - Understand Sentiment Breakdown (Priority: P3)~~ → **DEPRECATED**
 
-**Goal**: Display breakdown showing proportion of positive, neutral, and negative sentiment
+**DESIGN CHANGE (2025-10-25)**: User Story 3 has been **merged into Phase 3 (User Story 1)**. The sentiment breakdown percentages are now displayed directly within the MoodIndicator component to avoid UI duplication and reduce MVP complexity.
 
-**Independent Test**: View sentiment breakdown visualization and verify percentages add up to 100%. Categories clearly distinguished by color.
+**Why deprecated**: During implementation, we discovered that showing breakdown percentages in a separate component created information duplication - the same data was already shown in MoodIndicator. For MVP simplicity, we consolidated all sentiment display into a single component.
 
-**Acceptance**:
+**Implementation**: The MoodIndicator.vue component already has a `showBreakdown` prop that displays color-coded percentage badges (positive/neutral/negative) below the emoji and summary text. This fulfills all requirements of the original User Story 3.
 
-- Percentages/proportions for positive, neutral, negative sentiment
-- Three categories clearly distinguished by color or labeling
-- Visual emphasis when one category dominates (>70%)
+**Original Goal**: ~~Display breakdown showing proportion of positive, neutral, and negative sentiment~~  
+**New Implementation**: Breakdown is part of MoodIndicator (T023-T026 in Phase 3)
 
-### Implementation for User Story 3
+**Original Independent Test**: ~~View sentiment breakdown visualization and verify percentages add up to 100%. Categories clearly distinguished by color.~~  
+**New Test**: Verify MoodIndicator displays breakdown percentages with `showBreakdown={true}` prop
 
-- [ ] T043 [P] [US3] Create SentimentBreakdown.vue component in app/components/ with Chart.js doughnut chart
-- [ ] T044 [US3] Configure Chart.js doughnut chart with semantic color coding in SentimentBreakdown.vue (green/gray/red per VD-003)
-- [ ] T045 [US3] Add percentage labels for each sentiment category in SentimentBreakdown.vue (positive/neutral/negative)
-- [ ] T046 [US3] Implement dominance visual emphasis (>70%) in SentimentBreakdown.vue per acceptance scenario 3
-- [ ] T047 [US3] Extend useSentiment composable to extract breakdown data from app/server/api/sentiment.get.ts response
-- [ ] T048 [US3] Integrate SentimentBreakdown into app/pages/index.vue below TrendChart with responsive layout
-- [ ] T049 [US3] Add legend with color-coded labels in SentimentBreakdown.vue for accessibility
-- [ ] T050 [US3] Validate percentage sum equals 100 with visual indicator or assertion in SentimentBreakdown.vue
-- [ ] T051 [US3] Style SentimentBreakdown with Nuxt UI v4 components and ensure mobile responsiveness
+**Original Acceptance**: ~~Percentages/proportions for positive, neutral, negative sentiment; Three categories clearly distinguished by color or labeling; Visual emphasis when one category dominates (>70%)~~  
+**Now Fulfilled By**: MoodIndicator component with color-coded badges (green/gray/red per VD-003)
 
-**Checkpoint**: All user stories should now be independently functional - full dashboard with mood, trends, and breakdown
+### ~~Implementation for User Story 3~~ → **NO LONGER NEEDED**
+
+- ~~[ ] T043 [P] [US3] Create SentimentBreakdown.vue component in app/components/ with Chart.js doughnut chart~~ → **DEPRECATED**: Not needed, breakdown in MoodIndicator
+- ~~[ ] T044 [US3] Configure Chart.js doughnut chart with semantic color coding in SentimentBreakdown.vue (green/gray/red per VD-003)~~ → **DEPRECATED**
+- ~~[ ] T045 [US3] Add percentage labels for each sentiment category in SentimentBreakdown.vue (positive/neutral/negative)~~ → **DEPRECATED**
+- ~~[ ] T046 [US3] Implement dominance visual emphasis (>70%) in SentimentBreakdown.vue per acceptance scenario 3~~ → **DEPRECATED**
+- ~~[ ] T047 [US3] Extend useSentiment composable to extract breakdown data from app/server/api/sentiment.get.ts response~~ → **DEPRECATED**: Already done in Phase 2
+- ~~[ ] T048 [US3] Integrate SentimentBreakdown into app/pages/index.vue below TrendChart with responsive layout~~ → **DEPRECATED**
+- ~~[ ] T049 [US3] Add legend with color-coded labels in SentimentBreakdown.vue for accessibility~~ → **DEPRECATED**
+- ~~[ ] T050 [US3] Validate percentage sum equals 100 with visual indicator or assertion in SentimentBreakdown.vue~~ → **DEPRECATED**
+- ~~[ ] T051 [US3] Style SentimentBreakdown with Nuxt UI v4 components and ensure mobile responsiveness~~ → **DEPRECATED**
+
+**Checkpoint**: ~~All user stories should now be independently functional - full dashboard with mood, trends, and breakdown~~ → **NOW**: User Stories 1 (with integrated breakdown) and 2 are fully functional
 
 ---
 
@@ -352,11 +357,11 @@ Web application structure (Nuxt 4.1.3 with `app/` directory + Netlify Functions)
 - **Phase 7 (API Completeness)**: 7 tasks
 - **Phase 8 (Polish)**: 14 tasks
 
-**Total Tasks**: 81 tasks
+**Total Tasks**: 72 tasks (9 deprecated from Phase 5)
 
-**MVP Tasks Only** (Setup + Foundational + US1): 32 tasks
+**MVP Tasks Only** (Setup + Foundational + US1 with breakdown): 32 tasks
 
-**Parallel Tasks**: 29 tasks marked with [P] can run in parallel within their phase
+**Parallel Tasks**: 27 tasks marked with [P] can run in parallel within their phase (2 fewer after Phase 5 deprecation)
 
 ---
 
@@ -367,6 +372,8 @@ Web application structure (Nuxt 4.1.3 with `app/` directory + Netlify Functions)
 ✅ Homepage loads in <3 seconds  
 ✅ Mood indicator displays emoji (😊/😐/😟) matching current sentiment  
 ✅ Dutch summary text appears below mood indicator  
+✅ **Breakdown percentages (positive/neutral/negative) display with color coding**
+✅ **Dominant sentiment (>70%) visually emphasized in breakdown**
 ✅ Timestamp shows when data was last updated  
 ✅ "Friendly message" appears if no data exists yet  
 ✅ Mobile responsive (test on 320px width)
@@ -379,13 +386,15 @@ Web application structure (Nuxt 4.1.3 with `app/` directory + Netlify Functions)
 ✅ Gaps in data clearly indicated (not interpolated)  
 ✅ Notable changes (>20% swing) visually highlighted
 
-### User Story 3 (Breakdown Checkpoint)
+### ~~User Story 3 (Breakdown Checkpoint)~~ → **DEPRECATED** (merged into US1)
 
-✅ Doughnut chart displays with 3 segments (positive/neutral/negative)  
-✅ Percentages sum to exactly 100%  
-✅ Colors clearly distinguish categories  
-✅ Dominant sentiment (>70%) visually emphasized  
-✅ Legend shows color-coded labels
+~~✅ Doughnut chart displays with 3 segments (positive/neutral/negative)~~  
+~~✅ Percentages sum to exactly 100%~~  
+~~✅ Colors clearly distinguish categories~~  
+~~✅ Dominant sentiment (>70%) visually emphasized~~  
+~~✅ Legend shows color-coded labels~~
+
+**Note**: All breakdown functionality is now tested as part of User Story 1 (MoodIndicator component)
 
 ### Edge Cases (Final Validation)
 
@@ -431,5 +440,5 @@ Web application structure (Nuxt 4.1.3 with `app/` directory + Netlify Functions)
 **After MVP validation with users, proceed to**:
 
 - Phase 4: User Story 2 (adds trends context)
-- Phase 5: User Story 3 (adds transparency via breakdown)
+- ~~Phase 5: User Story 3 (adds transparency via breakdown)~~ → **DEPRECATED** (breakdown already in US1)
 - Phase 6-8: Production hardening
