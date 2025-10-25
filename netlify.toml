@@ -8,6 +8,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  NUXT_TREND_WINDOW_HOURS = "4"
 
 # Scheduled function for hourly sentiment data collection
 [functions."collect-sentiment"]
