@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@netlify/functions": "^5.0.1",
-    "@types/sentiment": "^5.0.4"
+    "@types/sentiment": "^5.0.4",
+    "sharp-cli": "^5.2.0"
   }
 }

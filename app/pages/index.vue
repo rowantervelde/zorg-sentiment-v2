@@ -104,13 +104,105 @@ onMounted(async () => {
   await fetchWithTrend();
 });
 
-// Set page meta
+// Set page meta (T068: SEO meta tags including OG tags for social sharing)
 useHead({
   title: 'Zorg Sentiment - Hoe voelt Nederland zich over zorgverzekeringen?',
   meta: [
+    // Basic meta tags
     {
       name: 'description',
       content: 'Volg de Nederlandse stemming over zorgverzekeringen in real-time. Gebaseerd op sentiment analyse van nieuwsbronnen.',
+    },
+    {
+      name: 'keywords',
+      content: 'zorg, zorgverzekering, sentiment, stemming, Nederland, gezondheidszorg, verzekering, trend',
+    },
+    {
+      name: 'author',
+      content: 'Zorg Sentiment',
+    },
+    // Open Graph / Facebook
+    {
+      property: 'og:type',
+      content: 'website',
+    },
+    {
+      property: 'og:title',
+      content: 'Zorg Sentiment - Nederlandse stemming over zorgverzekeringen',
+    },
+    {
+      property: 'og:description',
+      content: 'Volg de Nederlandse stemming over zorgverzekeringen in real-time. Gebaseerd op sentiment analyse van nieuwsbronnen.',
+    },
+    {
+      property: 'og:site_name',
+      content: 'Zorg Sentiment',
+    },
+    {
+      property: 'og:locale',
+      content: 'nl_NL',
+    },
+    // Twitter Card
+    {
+      name: 'twitter:card',
+      content: 'summary_large_image',
+    },
+    {
+      name: 'twitter:title',
+      content: 'Zorg Sentiment - Hoe voelt Nederland zich over zorgverzekeringen?',
+    },
+    {
+      name: 'twitter:description',
+      content: 'Volg de Nederlandse stemming over zorgverzekeringen in real-time.',
+    },
+    // Viewport for responsive design
+    {
+      name: 'viewport',
+      content: 'width=device-width, initial-scale=1',
+    },
+  ],
+  htmlAttrs: {
+    lang: 'nl',
+  },
+  link: [
+    {
+      rel: 'canonical',
+      href: 'https://zorg-sentiment.netlify.app',
+    },
+    // Favicon and app icons
+    {
+      rel: 'icon',
+      type: 'image/x-icon',
+      href: '/favicon.ico',
+    },
+    {
+      rel: 'icon',
+      type: 'image/png',
+      sizes: '16x16',
+      href: '/favicon-16x16.png',
+    },
+    {
+      rel: 'icon',
+      type: 'image/png',
+      sizes: '32x32',
+      href: '/favicon-32x32.png',
+    },
+    {
+      rel: 'apple-touch-icon',
+      sizes: '180x180',
+      href: '/apple-touch-icon.png',
+    },
+    {
+      rel: 'icon',
+      type: 'image/png',
+      sizes: '192x192',
+      href: '/icon-192.png',
+    },
+    {
+      rel: 'icon',
+      type: 'image/png',
+      sizes: '512x512',
+      href: '/icon-512.png',
     },
   ],
 });

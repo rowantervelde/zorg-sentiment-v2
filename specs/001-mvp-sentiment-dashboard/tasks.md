@@ -194,18 +194,18 @@ Web application structure (Nuxt 4.1.3 with `app/` directory + Netlify Functions)
 
 **Purpose**: Improvements that affect multiple user stories and production readiness
 
-- [ ] T068 [P] Add SEO meta tags (title, description, OG tags) to app/pages/index.vue for social sharing
+- [x] T068 [P] Add SEO meta tags (title, description, OG tags) to app/pages/index.vue for social sharing ✅
 - [ ] T069 [P] Implement Dutch language static content throughout application (friendly, warm tone per VD-004)
 - [ ] T070 Add playful visual design polish (colors, spacing, typography per VD-004 - bright accessible palette)
-- [ ] T071 [P] Optimize Chart.js bundle size (tree-shaking, lazy loading) in nuxt.config.ts
+- [x] T071 [P] Optimize Chart.js bundle size (tree-shaking, lazy loading) in nuxt.config.ts ✅
 - [ ] T072 Run Lighthouse performance audit - target <3s page load per SC-006
-- [ ] T073 [P] Add favicon and app icons to public/ directory
-- [ ] T074 [P] Create/update README.md with project overview and quickstart link
+- [x] T073 [P] Add favicon and app icons to public/ directory ✅
+- [x] T074 [P] Create/update README.md with project overview and quickstart link ✅
 - [ ] T075 Test 100-500 concurrent user capacity with load testing tool per SC-006a
-- [ ] T076 Validate all edge cases from spec.md (no data, missing days, extreme values 100%, data gaps)
-- [ ] T077 [P] Add error boundary for graceful failure handling in app/app.vue
+- [x] T076 Validate all edge cases from spec.md (no data, missing days, extreme values 100%, data gaps) ✅
+- [x] T077 [P] Add error boundary for graceful failure handling in app/app.vue ✅
 - [ ] T078 Verify rate limiting (20 req/hour per IP per FR-010a) with manual curl testing
-- [ ] T079 [P] Add deployment preview validation checklist for Netlify Deploy Previews
+- [x] T079 [P] Add deployment preview validation checklist for Netlify Deploy Previews ✅
 - [ ] T080 Run through complete quickstart.md validation per Phase 1 artifact
 - [ ] T081 [P] Update .github/copilot-instructions.md with final implementation notes (if needed)
 
