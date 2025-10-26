@@ -16,10 +16,10 @@
 
 **Purpose**: Project initialization and configuration
 
-- [ ] T001 [SHARED] Create feature branch `002-multi-source-sentiment` and verify checkout
-- [ ] T002 [P] [SHARED] Create `server/config/` directory for source configuration
-- [ ] T003 [P] [SHARED] Install `wink-nlp-utils@2.1.0` dependency for Levenshtein distance in package.json
-- [ ] T004 [P] [SHARED] Create base `server/config/sources.json` with empty sources array structure
+- [x] T001 [SHARED] Create feature branch `002-multi-source-sentiment` and verify checkout
+- [x] T002 [P] [SHARED] Create `server/config/` directory for source configuration
+- [x] T003 [P] [SHARED] Install `wink-nlp-utils@2.1.0` dependency for Levenshtein distance in package.json
+- [x] T004 [P] [SHARED] Create base `server/config/sources.json` with empty sources array structure
 
 **Manual Test Checkpoint**: Verify branch exists, config directory created, dependency installed with `npm list wink-nlp-utils`
 
