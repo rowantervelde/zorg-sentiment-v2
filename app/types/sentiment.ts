@@ -7,6 +7,56 @@
 export type MoodType = "positive" | "negative" | "mixed" | "neutral";
 
 /**
+ * Source contribution tracking for multi-source sentiment
+ */
+export interface SourceContribution {
+  /** References SourceConfiguration.id */
+  sourceId: string
+  
+  /** Display name at time of collection */
+  sourceName: string
+  
+  /** Source type: 'rss' | 'social' | 'other' */
+  sourceType: string
+  
+  /** Count of articles from this source */
+  articlesCollected: number
+  
+  /** Sentiment breakdown from this source */
+  sentimentBreakdown: {
+    positive: number // Percentage 0-100
+    neutral: number // Percentage 0-100
+    negative: number // Percentage 0-100
+  }
+  
+  /** Timestamp of fetch (ISO 8601) */
+  fetchedAt: string
+  
+  /** Time taken to fetch articles */
+  fetchDurationMs: number
+  
+  /** Fetch status */
+  status: 'success' | 'failed' | 'partial'
+  
+  /** Error message if status='failed' */
+  error?: string
+}
+
+/**
+ * Source diversity metrics
+ */
+export interface SourceDiversity {
+  /** Total sources attempted */
+  totalSources: number
+  
+  /** Sources that returned data */
+  activeSources: number
+  
+  /** Sources that failed */
+  failedSources: number
+}
+
+/**
  * Single hourly measurement of Dutch healthcare insurance sentiment
  */
 export interface SentimentDataPoint {
@@ -29,7 +79,11 @@ export interface SentimentDataPoint {
 
   // Metadata
   articlesAnalyzed: number; // Count of RSS articles processed
-  source: string; // "nu.nl" for MVP
+  source: string; // "nu.nl" for MVP (deprecated, use sourceContributions)
+
+  // Multi-Source Attribution (NEW - optional for backward compatibility)
+  sourceContributions?: SourceContribution[]; // Per-source breakdown
+  sourceDiversity?: SourceDiversity; // Source diversity metrics
 
   // Data Quality (optional)
   confidence?: number; // 0-1, quality indicator

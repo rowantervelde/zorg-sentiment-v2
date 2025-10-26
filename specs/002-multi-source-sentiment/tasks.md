@@ -31,15 +31,15 @@
 
 **⚠️ CRITICAL**: No user story work begins until this phase completes
 
-- [ ] T005 [SHARED] Create `server/types/source.ts` with SourceType enum (RSS, SOCIAL_TWITTER, SOCIAL_REDDIT, API)
-- [ ] T006 [P] [SHARED] Create `server/types/article.ts` with Article interface (title, content, publishedAt, sourceId, deduplicationHash)
-- [ ] T007 [P] [SHARED] Create `server/types/sourceConfiguration.ts` with SourceConfiguration interface (id, name, type, config, category, isActive, reliability)
-- [ ] T008 [SHARED] Create abstract `server/utils/sourceAdapter.ts` with SourceAdapter interface (fetchArticles, validateConfig, getIdentifier, supportsSourceType)
-- [ ] T009 [SHARED] Extend `app/types/sentiment.ts` to add SourceContribution interface (sourceId, sourceName, articleCount, sentimentBreakdown, timestamp, errors)
-- [ ] T010 [SHARED] Extend `app/types/sentiment.ts` to add sourceContributions array and sourceDiversity metrics to SentimentDataPoint interface
-- [ ] T011 [SHARED] Update `server/utils/storage.ts` to support reading/writing sourceContributions array in SentimentDataPoint blob structure
-- [ ] T012 [SHARED] Create `server/utils/deduplicator.ts` with titleContentSimilarity function using wink-nlp-utils Levenshtein (80% threshold)
-- [ ] T013 [SHARED] Add isDuplicate function to `server/utils/deduplicator.ts` with Article[] input (compares against existing articles)
+- [x] T005 [SHARED] Create `server/types/source.ts` with SourceType enum (RSS, SOCIAL_TWITTER, SOCIAL_REDDIT, API)
+- [x] T006 [P] [SHARED] Create `server/types/article.ts` with Article interface (title, content, publishedAt, sourceId, deduplicationHash)
+- [x] T007 [P] [SHARED] Create `server/types/sourceConfiguration.ts` with SourceConfiguration interface (id, name, type, config, category, isActive, reliability)
+- [x] T008 [SHARED] Create abstract `server/utils/sourceAdapter.ts` with SourceAdapter interface (fetchArticles, validateConfig, getIdentifier, supportsSourceType)
+- [x] T009 [SHARED] Extend `app/types/sentiment.ts` to add SourceContribution interface (sourceId, sourceName, articleCount, sentimentBreakdown, timestamp, errors)
+- [x] T010 [SHARED] Extend `app/types/sentiment.ts` to add sourceContributions array and sourceDiversity metrics to SentimentDataPoint interface
+- [x] T011 [SHARED] Update `server/utils/storage.ts` to support reading/writing sourceContributions array in SentimentDataPoint blob structure
+- [x] T012 [SHARED] Create `server/utils/deduplicator.ts` with titleContentSimilarity function using wink-nlp-utils Levenshtein (80% threshold)
+- [x] T013 [SHARED] Add isDuplicate function to `server/utils/deduplicator.ts` with Article[] input (compares against existing articles)
 
 **Manual Test Checkpoint**:
 

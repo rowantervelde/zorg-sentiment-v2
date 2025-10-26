@@ -1,6 +1,9 @@
 /**
  * Storage utility using Netlify Blobs
  * Manages persistent storage of sentiment data with 7-day retention
+ * 
+ * Supports multi-source sentiment data with sourceContributions and sourceDiversity
+ * (added in feature 002-multi-source-sentiment)
  */
 
 import { getStore } from '@netlify/blobs';
