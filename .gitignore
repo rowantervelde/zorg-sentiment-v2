@@ -1,0 +1,39 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+build
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+Thumbs.db
+*.tmp
+*.swp
+.vscode/settings.json
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Local Netlify folder
+.netlify
+
+# Test coverage
+coverage
+.nyc_output
+
+# TypeScript
+*.tsbuildinfo

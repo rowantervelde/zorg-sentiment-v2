@@ -1,0 +1,438 @@
+openapi: 3.0.3
+info:
+  title: Zorg Sentiment API
+  description: REST API for Dutch healthcare insurance sentiment data
+  version: 1.0.0
+  contact:
+    name: Zorg Sentiment Team
+
+servers:
+  - url: https://{domain}/api
+    description: Production deployment
+    variables:
+      domain:
+        default: zorg-sentiment.netlify.app
+        description: Netlify domain
+  - url: http://localhost:3000/api
+    description: Local development
+
+tags:
+  - name: sentiment
+    description: Sentiment data operations
+
+paths:
+  /sentiment:
+    get:
+      tags:
+        - sentiment
+      summary: Get current sentiment data
+      description: |
+        Returns the latest sentiment data point along with 7-day trend period.
+        Cached for 5 minutes on Netlify CDN.
+      operationId: getSentiment
+      parameters:
+        - name: include
+          in: query
+          description: Optional data to include
+          required: false
+          schema:
+            type: string
+            enum: [trend, summary, all]
+            default: all
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SentimentResponse'
+              examples:
+                current:
+                  summary: Current sentiment with all data
+                  value:
+                    current:
+                      timestamp: "2025-10-24T14:00:00Z"
+                      collectionDurationMs: 2340
+                      moodClassification: "positive"
+                      breakdown:
+                        positive: 65
+                        neutral: 25
+                        negative: 10
+                      summary: "Nederland voelt zich optimistisch over zorgverzekeringen"
+                      articlesAnalyzed: 12
+                      source: "nu-nl-gezondheid"
+                      confidence: 0.85
+                    trend:
+                      startDate: "2025-10-17T14:00:00Z"
+                      endDate: "2025-10-24T14:00:00Z"
+                      dataPoints: []
+                      averageMood:
+                        positive: 55
+                        neutral: 30
+                        negative: 15
+                      dominantMood: "positive"
+                      totalDataPoints: 156
+                      missingHours: 12
+                      dataCompleteness: 92.86
+                    moodSummary:
+                      text: "Nederland voelt zich optimistisch over zorgverzekeringen"
+                      mood: "positive"
+                      generatedAt: "2025-10-24T14:00:00Z"
+                      basedOnDataPoint: "2025-10-24T14:00:00Z"
+                      emoji: "😊"
+                    meta:
+                      lastUpdated: "2025-10-24T14:00:00Z"
+                      dataAge: 0
+                      isStale: false
+                      nextUpdate: "2025-10-24T15:00:00Z"
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Rate limit exceeded"
+                message: "You have exceeded the rate limit of 20 requests per hour"
+                code: "RATE_LIMIT_EXCEEDED"
+                retryAfter: 1800
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Internal server error"
+                message: "Failed to fetch sentiment data"
+                code: "INTERNAL_ERROR"
+
+  /sentiment/history:
+    get:
+      tags:
+        - sentiment
+      summary: Get historical sentiment data
+      description: Returns sentiment data points for a specified time range (max 7 days)
+      operationId: getSentimentHistory
+      parameters:
+        - name: from
+          in: query
+          description: Start date (ISO 8601)
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: "2025-10-17T00:00:00Z"
+        - name: to
+          in: query
+          description: End date (ISO 8601)
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: "2025-10-24T23:59:59Z"
+        - name: limit
+          in: query
+          description: Maximum number of data points to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 168
+            default: 168
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      tags:
+        - system
+      summary: Health check endpoint
+      description: Returns system health status and data source status
+      operationId: getHealth
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: "healthy"
+                timestamp: "2025-10-24T14:30:00Z"
+                sources:
+                  - id: "nu-nl-gezondheid"
+                    name: "NU.nl Gezondheid"
+                    status: "operational"
+                    lastSuccess: "2025-10-24T14:00:00Z"
+                    lastError: null
+                dataAge: 1800
+                isStale: false
+
+components:
+  schemas:
+    SentimentDataPoint:
+      type: object
+      required:
+        - timestamp
+        - moodClassification
+        - breakdown
+        - summary
+        - articlesAnalyzed
+        - source
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of data collection
+        collectionDurationMs:
+          type: integer
+          description: Time taken to collect and analyze data (milliseconds)
+          minimum: 0
+        moodClassification:
+          type: string
+          enum: [positive, negative, mixed, neutral]
+          description: Overall mood classification
+        breakdown:
+          $ref: '#/components/schemas/SentimentBreakdown'
+        summary:
+          type: string
+          maxLength: 200
+          description: Human-readable Dutch summary
+        articlesAnalyzed:
+          type: integer
+          minimum: 1
+          description: Number of articles processed
+        source:
+          type: string
+          description: Data source identifier
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Confidence score (optional)
+        errors:
+          type: array
+          items:
+            type: string
+          description: Collection errors if any
+
+    SentimentBreakdown:
+      type: object
+      required:
+        - positive
+        - neutral
+        - negative
+      properties:
+        positive:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Percentage of positive sentiment
+        neutral:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Percentage of neutral sentiment
+        negative:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Percentage of negative sentiment
+
+    TrendPeriod:
+      type: object
+      required:
+        - startDate
+        - endDate
+        - dataPoints
+        - averageMood
+        - dominantMood
+        - totalDataPoints
+      properties:
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        dataPoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/SentimentDataPoint'
+          maxItems: 168
+        averageMood:
+          $ref: '#/components/schemas/SentimentBreakdown'
+        dominantMood:
+          type: string
+          enum: [positive, negative, mixed, neutral]
+        totalDataPoints:
+          type: integer
+          minimum: 0
+        missingHours:
+          type: integer
+          minimum: 0
+        dataCompleteness:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+
+    MoodSummary:
+      type: object
+      required:
+        - text
+        - mood
+        - generatedAt
+        - basedOnDataPoint
+        - emoji
+      properties:
+        text:
+          type: string
+          maxLength: 200
+        mood:
+          type: string
+          enum: [positive, negative, mixed, neutral]
+        generatedAt:
+          type: string
+          format: date-time
+        basedOnDataPoint:
+          type: string
+          format: date-time
+        emoji:
+          type: string
+          description: Emoji representation of mood
+
+    SentimentResponse:
+      type: object
+      required:
+        - current
+        - meta
+      properties:
+        current:
+          $ref: '#/components/schemas/SentimentDataPoint'
+        trend:
+          $ref: '#/components/schemas/TrendPeriod'
+        moodSummary:
+          $ref: '#/components/schemas/MoodSummary'
+        meta:
+          type: object
+          properties:
+            lastUpdated:
+              type: string
+              format: date-time
+            dataAge:
+              type: integer
+              description: Age of data in seconds
+            isStale:
+              type: boolean
+              description: True if data is older than 24 hours
+            nextUpdate:
+              type: string
+              format: date-time
+              description: Expected next update time
+
+    HistoryResponse:
+      type: object
+      required:
+        - dataPoints
+        - count
+        - period
+      properties:
+        dataPoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/SentimentDataPoint'
+        count:
+          type: integer
+          minimum: 0
+        period:
+          type: object
+          properties:
+            from:
+              type: string
+              format: date-time
+            to:
+              type: string
+              format: date-time
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        sources:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              status:
+                type: string
+                enum: [operational, degraded, failed]
+              lastSuccess:
+                type: string
+                format: date-time
+              lastError:
+                type: string
+                nullable: true
+        dataAge:
+          type: integer
+          description: Age of latest data in seconds
+        isStale:
+          type: boolean
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+        - code
+      properties:
+        error:
+          type: string
+          description: Error title
+        message:
+          type: string
+          description: Detailed error message
+        code:
+          type: string
+          description: Machine-readable error code
+        retryAfter:
+          type: integer
+          description: Seconds until retry allowed (for rate limiting)
+
+  securitySchemes: {}
+
+security: []
