@@ -3,10 +3,45 @@
  * Detects duplicate articles across different sources (80% similarity threshold)
  */
 
-import { string as wnlpString } from 'wink-nlp-utils'
 import type { Article } from '../types/article'
 
 const SIMILARITY_THRESHOLD = 0.8 // 80% similarity
+
+/**
+ * Calculate Levenshtein distance between two strings
+ * Returns the minimum number of single-character edits required to transform one string into another
+ */
+function levenshteinDistance(str1: string, str2: string): number {
+  const len1 = str1.length
+  const len2 = str2.length
+  
+  // Create a 2D array to store distances
+  const matrix: number[][] = []
+  
+  // Initialize first row and column
+  for (let i = 0; i <= len1; i++) {
+    matrix[i] = [i]
+  }
+  
+  for (let j = 0; j <= len2; j++) {
+    matrix[0][j] = j
+  }
+  
+  // Calculate distances
+  for (let i = 1; i <= len1; i++) {
+    for (let j = 1; j <= len2; j++) {
+      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1
+      
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,      // deletion
+        matrix[i][j - 1] + 1,      // insertion
+        matrix[i - 1][j - 1] + cost // substitution
+      )
+    }
+  }
+  
+  return matrix[len1][len2]
+}
 
 /**
  * Calculate similarity between two text strings using Levenshtein distance
@@ -19,9 +54,18 @@ export function titleContentSimilarity(text1: string, text2: string): number {
   const normalized1 = text1.toLowerCase().trim()
   const normalized2 = text2.toLowerCase().trim()
   
-  // Use wink-nlp-utils string similarity (Levenshtein-based)
-  // Returns a value between 0 and 1
-  return wnlpString.similarity(normalized1, normalized2)
+  // Handle edge cases
+  if (normalized1 === normalized2) return 1.0
+  if (normalized1.length === 0 || normalized2.length === 0) return 0.0
+  
+  // Calculate Levenshtein distance
+  const distance = levenshteinDistance(normalized1, normalized2)
+  
+  // Convert to similarity ratio: similarity = 1 - (distance / maxLength)
+  const maxLength = Math.max(normalized1.length, normalized2.length)
+  const similarity = 1 - (distance / maxLength)
+  
+  return Math.max(0, Math.min(1, similarity)) // Clamp between 0 and 1
 }
 
 /**

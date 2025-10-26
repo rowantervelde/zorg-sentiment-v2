@@ -57,16 +57,16 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Create `server/config/sources.json` with 5 RSS feed configurations (NU.nl, NOS, RTL Nieuws, Zorgkrant, Skipr) per RS-001 to RS-005
-- [ ] T015 [P] [US1] Create `server/utils/rssAdapter.ts` implementing SourceAdapter interface for RSS feeds (uses existing rssFetcher logic)
-- [ ] T016 [US1] Create `server/utils/sourceOrchestrator.ts` with fetchFromAllSources function (Promise.allSettled, 10s timeout per source)
-- [ ] T017 [US1] Add deduplication logic to `server/utils/sourceOrchestrator.ts` (calls deduplicator.isDuplicate for each article)
-- [ ] T018 [US1] Add article limiting logic to `server/utils/sourceOrchestrator.ts` (max 30 articles per source per FR-014)
-- [ ] T019 [US1] Add source contribution tracking to `server/utils/sourceOrchestrator.ts` (builds SourceContribution[] from results)
-- [ ] T020 [US1] Add source diversity calculation to `server/utils/sourceOrchestrator.ts` (total sources, article distribution)
-- [ ] T021 [US1] Update `netlify/functions/collect-sentiment.mts` to use sourceOrchestrator.fetchFromAllSources instead of single RSS fetch
-- [ ] T022 [US1] Update `netlify/functions/collect-sentiment.mts` to save sourceContributions and sourceDiversity in SentimentDataPoint
-- [ ] T023 [US1] Add error logging to `netlify/functions/collect-sentiment.mts` for source fetch failures (non-blocking)
+- [x] T014 [P] [US1] Create `server/config/sources.json` with 5 RSS feed configurations (NU.nl, NOS, RTL Nieuws, Zorgkrant, Skipr) per RS-001 to RS-005
+- [x] T015 [P] [US1] Create `server/utils/rssAdapter.ts` implementing SourceAdapter interface for RSS feeds (uses existing rssFetcher logic)
+- [x] T016 [US1] Create `server/utils/sourceOrchestrator.ts` with fetchFromAllSources function (Promise.allSettled, 10s timeout per source)
+- [x] T017 [US1] Add deduplication logic to `server/utils/sourceOrchestrator.ts` (calls deduplicator.isDuplicate for each article)
+- [x] T018 [US1] Add article limiting logic to `server/utils/sourceOrchestrator.ts` (max 30 articles per source per FR-014)
+- [x] T019 [US1] Add source contribution tracking to `server/utils/sourceOrchestrator.ts` (builds SourceContribution[] from results)
+- [x] T020 [US1] Add source diversity calculation to `server/utils/sourceOrchestrator.ts` (total sources, article distribution)
+- [x] T021 [US1] Update `netlify/functions/collect-sentiment.mts` to use sourceOrchestrator.fetchFromAllSources instead of single RSS fetch
+- [x] T022 [US1] Update `netlify/functions/collect-sentiment.mts` to save sourceContributions and sourceDiversity in SentimentDataPoint
+- [x] T023 [US1] Add error logging to `netlify/functions/collect-sentiment.mts` for source fetch failures (non-blocking)
 
 **Manual Test Checkpoint - User Story 1**:
 
