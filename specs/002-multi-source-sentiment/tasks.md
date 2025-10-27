@@ -130,50 +130,7 @@
 
 ---
 
-## Phase 5: User Story 3 - Configurable Sources (Priority: P3)
-
-**Goal**: Allow source configuration changes without code deployment (environment variables override JSON config)
-
-**Independent Test**: Change RSS feed URL via environment variable, restart function, verify new source used in collection
-
-### Implementation for User Story 3
-
-- [ ] T032 [US3] Create `server/utils/sourceConfig.ts` with loadSourceConfiguration function (reads sources.json, applies env var overrides)
-- [ ] T033 [US3] Implement environment variable parsing in `server/utils/sourceConfig.ts` (format: `SOURCE_RSS_NUID_URL=https://...`)
-- [ ] T034 [US3] Add configuration validation to `server/utils/sourceConfig.ts` (checks required fields: id, name, type, config.url, isActive)
-- [ ] T035 [US3] Add invalid source filtering to `server/utils/sourceConfig.ts` (logs errors per FR-009, continues with valid sources)
-- [ ] T036 [US3] Update `server/utils/sourceOrchestrator.ts` to use sourceConfig.loadSourceConfiguration instead of direct JSON import
-- [ ] T037 [US3] Update `netlify/functions/collect-sentiment.mts` to call sourceConfig.loadSourceConfiguration at function start
-- [ ] T038 [US3] Add startup validation logging to `netlify/functions/collect-sentiment.mts` (logs loaded sources, validation errors)
-- [ ] T039 [P] [US3] Document environment variable format in `docs/configuration.md` (examples: SOURCE_RSS_NUID_URL, SOURCE_RSS_NUID_ACTIVE)
-- [ ] T040 [P] [US3] Add configuration examples to `server/config/sources.example.json` with comments
-
-**Manual Test Checkpoint - User Story 3**:
-
-1. **Test 1 - JSON configuration baseline**: Deploy with default sources.json
-   - Verify all 5 RSS feeds loaded at startup (check logs)
-   - Trigger collection, verify all sources used
-2. **Test 2 - Environment variable override**: Set `SOURCE_RSS_NUID_URL=https://invalid-test-url.com` in Netlify environment
-   - Redeploy function, check startup logs
-   - Verify NU.nl source uses new URL (fails gracefully with error logged)
-   - Verify other 4 sources still work normally
-3. **Test 3 - Disable source via env var**: Set `SOURCE_RSS_NUID_ACTIVE=false`
-   - Restart function, verify NU.nl skipped in collection cycle (logs show 4 sources)
-   - Verify sentiment data generated from remaining 4 sources
-4. **Test 4 - Invalid configuration handling**: Set `SOURCE_RSS_NOS_URL=` (empty URL)
-   - Verify validation error logged at startup for NOS source
-   - Verify collection continues with 4 valid sources (graceful degradation)
-   - Verify no deployment needed to fix (update env var, restart)
-5. **Test 5 - Add new source**: Add 6th RSS feed to sources.json, redeploy
-   - Verify new source appears in startup logs
-   - Verify new source included in collection cycle
-   - Verify GET /api/sentiment/sources shows 6 sources
-
-**Checkpoint**: Source configuration is flexible - operators can modify sources via environment variables without code changes
-
----
-
-## Phase 6: User Story 4 - Architecture Prep for Social Media (Priority: P4)
+## Phase 5: User Story 4 - Architecture Prep for Social Media (Priority: P4)
 
 **Goal**: Extend architecture to support future non-RSS sources (Twitter, Reddit) through common interface
 
@@ -212,7 +169,7 @@
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+## Phase 6: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements affecting multiple user stories and final validation
 
@@ -264,9 +221,8 @@
 - **Foundational (Phase 2)**: Depends on Setup - BLOCKS all user stories until complete
 - **User Story 1 (Phase 3)**: Depends on Foundational - MVP delivery target
 - **User Story 2 (Phase 4)**: Depends on Foundational - can start in parallel with US1 (different files), but requires US1 data to test meaningfully
-- **User Story 3 (Phase 5)**: Depends on US1 completion (modifies orchestrator and collection function)
-- **User Story 4 (Phase 6)**: Depends on US1 completion (extends orchestrator architecture)
-- **Polish (Phase 7)**: Depends on all desired user stories completing
+- **User Story 4 (Phase 5)**: Depends on US1 completion (extends orchestrator architecture)
+- **Polish (Phase 6)**: Depends on all desired user stories completing
 
 ### Recommended Execution Strategy
 
@@ -275,9 +231,8 @@
 1. Complete Setup → Foundational (foundation ready)
 2. Complete US1 (Phase 3) → **STOP AND TEST** → Deploy/Demo MVP
 3. Complete US2 (Phase 4) → **STOP AND TEST** → Deploy metrics API
-4. Complete US3 (Phase 5) → **STOP AND TEST** → Deploy config flexibility
-5. Complete US4 (Phase 6) → **STOP AND TEST** → Validate architecture extensibility
-6. Complete Polish (Phase 7) → Final validation → Production release
+4. Complete US4 (Phase 5) → **STOP AND TEST** → Validate architecture extensibility
+5. Complete Polish (Phase 6) → Final validation → Production release
 
 **Parallel Team Strategy**:
 
@@ -286,8 +241,7 @@
    - Developer A: US1 (core multi-source collection)
    - Developer B: US2 (metrics API - can develop against mock US1 data)
 3. After US1 + US2 complete:
-   - Developer A: US3 (config system)
-   - Developer B: US4 (architecture prep)
+   - Developer A: US4 (architecture prep)
 4. Team completes Polish together
 
 ### Within Each User Story
@@ -301,8 +255,7 @@
 **Setup Phase**: T002, T003, T004 can run in parallel  
 **Foundational Phase**: T006+T007 (types), T012+T013 (deduplicator) can run in parallel  
 **User Story 1**: T014+T015 (config + adapter) can start in parallel  
-**User Story 2**: T024+T025 (types) can run in parallel, T039+T040 (docs) can run in parallel  
-**User Story 3**: T039+T040 (docs) can run in parallel  
+**User Story 2**: T024+T025 (types) can run in parallel  
 **User Story 4**: T044+T045+T047 (stubs + types), T048+T049 (docs) can run in parallel  
 **Polish Phase**: T050+T051+T054+T057 (docs + checks) can run in parallel
 

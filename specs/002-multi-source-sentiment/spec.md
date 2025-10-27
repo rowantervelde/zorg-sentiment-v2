@@ -47,22 +47,6 @@ Administrators or analytics can view which data sources contributed to sentiment
 
 ---
 
-### User Story 3 - Configure RSS Feed Sources (Priority: P3)
-
-Administrators can add, remove, or temporarily disable RSS feed sources through configuration, allowing the system to adapt to new sources or remove unreliable ones without code changes.
-
-**Why this priority**: This enables operational flexibility and iterative improvement. While important for long-term maintainability, the system can initially function with hardcoded sources.
-
-**Independent Test**: Can be fully tested by modifying the RSS feed configuration, triggering data collection, and verifying that only active feeds are used. Delivers value by reducing deployment friction when adjusting data sources.
-
-**Acceptance Scenarios**:
-
-1. **Given** a new RSS feed URL is added to configuration, **When** the next collection cycle runs, **Then** articles from the new feed are included in sentiment analysis
-2. **Given** an RSS feed is marked as disabled in configuration, **When** data collection runs, **Then** that feed is skipped but other feeds continue to be processed
-3. **Given** RSS feed configuration is invalid (malformed URL, missing required fields), **When** system starts or configuration is reloaded, **Then** validation error is logged and system continues with valid feeds only
-
----
-
 ### User Story 4 - Prepare for Social Media Source Integration (Priority: P4)
 
 The data collection architecture supports multiple source types (not just RSS), making it straightforward to add Reddit, Twitter/X, or other platforms in future iterations. The storage and analysis components handle articles generically without RSS-specific assumptions.
