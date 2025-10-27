@@ -138,15 +138,15 @@
 
 ### Implementation for User Story 4
 
-- [ ] T041 [US4] Add source type validation to `server/utils/sourceAdapter.ts` (supportsSourceType method enforced)
-- [ ] T042 [US4] Create adapter registry in `server/utils/sourceOrchestrator.ts` (maps SourceType enum to adapter instances)
-- [ ] T043 [US4] Update `server/utils/sourceOrchestrator.ts` to select adapter based on source.type field (RSS → rssAdapter, future SOCIAL_TWITTER → twitterAdapter)
-- [ ] T044 [P] [US4] Create stub `server/utils/twitterAdapter.ts` implementing SourceAdapter interface (throws "Not implemented" error in fetchArticles)
-- [ ] T045 [P] [US4] Create stub `server/utils/redditAdapter.ts` implementing SourceAdapter interface (throws "Not implemented" error in fetchArticles)
-- [ ] T046 [US4] Register twitterAdapter and redditAdapter in sourceOrchestrator adapter registry (commented out until implemented)
-- [ ] T047 [US4] Update Article interface in `server/types/article.ts` to support social media fields (optional: authorHandle, postUrl, engagement metrics)
-- [ ] T048 [P] [US4] Document future social media integration in `docs/extending-sources.md` (how to implement SourceAdapter, register adapter, configure source)
-- [ ] T049 [P] [US4] Create example social media source config in `server/config/sources.example.json` (commented out Twitter and Reddit entries)
+- [x] T041 [US4] Add source type validation to `server/utils/sourceAdapter.ts` (supportsSourceType method enforced)
+- [x] T042 [US4] Create adapter registry in `server/utils/sourceOrchestrator.ts` (maps SourceType enum to adapter instances)
+- [x] T043 [US4] Update `server/utils/sourceOrchestrator.ts` to select adapter based on source.type field (RSS → rssAdapter, future SOCIAL_TWITTER → twitterAdapter)
+- [x] T044 [P] [US4] Create stub `server/utils/twitterAdapter.ts` implementing SourceAdapter interface (throws "Not implemented" error in fetchArticles)
+- [x] T045 [P] [US4] Create stub `server/utils/redditAdapter.ts` implementing SourceAdapter interface (throws "Not implemented" error in fetchArticles)
+- [x] T046 [US4] Register twitterAdapter and redditAdapter in sourceOrchestrator adapter registry (commented out until implemented)
+- [x] T047 [US4] Update Article interface in `server/types/article.ts` to support social media fields (optional: authorHandle, postUrl, engagement metrics)
+- [x] T048 [P] [US4] Document future social media integration in `docs/extending-sources.md` (how to implement SourceAdapter, register adapter, configure source)
+- [x] T049 [P] [US4] Create example social media source config in `server/config/sources.example.json` (commented out Twitter and Reddit entries)
 
 **Manual Test Checkpoint - User Story 4**:
 
