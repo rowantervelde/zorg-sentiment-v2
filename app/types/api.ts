@@ -3,13 +3,43 @@
  * Based on contracts/sentiment-api.yaml OpenAPI specification
  */
 
-import type { SentimentDataPoint, TrendPeriod, DataSource } from './sentiment';
+import type { SentimentDataPoint, TrendPeriod, DataSource, SourceContribution } from './sentiment';
 
 /**
  * Query parameters for GET /api/sentiment
  */
 export interface SentimentQueryParams {
   include?: 'trend' | 'summary' | 'all'; // Optional data inclusions
+}
+
+/**
+ * Source reliability metrics (T025)
+ */
+export interface SourceMetrics {
+  successRate: number; // Percentage 0-100 (7-day window)
+  avgResponseTimeMs: number; // Average response time in ms
+  consecutiveFailures: number; // Current failure streak
+  lastSuccessAt?: string; // ISO 8601 timestamp
+  lastFailureAt?: string; // ISO 8601 timestamp
+  isHealthy: boolean; // true if success rate >= 90%
+  isInactive: boolean; // true if consecutive failures >= 72
+  inactiveMarkedAt?: string; // ISO 8601 timestamp
+}
+
+/**
+ * Source contribution response with metrics (T024)
+ */
+export interface SourceContributionResponse {
+  timestamp: string; // ISO 8601 timestamp of sentiment data point
+  totalArticles: number; // Total articles analyzed (after deduplication)
+  totalSourcesAttempted: number; // Number of sources attempted in collection
+  activeSourcesCount: number; // Number of sources that returned data
+  failedSourcesCount: number; // Number of sources that failed
+  sources: Array<SourceContribution & {
+    category: string; // 'general' | 'healthcare-specific'
+    articlePercentage: number; // Percentage of total articles (0-100)
+    reliability: SourceMetrics; // Aggregated metrics per source
+  }>;
 }
 
 /**

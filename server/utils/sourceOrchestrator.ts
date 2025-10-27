@@ -9,6 +9,8 @@ import type { SourceContribution, SourceDiversity } from '~/types/sentiment'
 import { SourceType } from '../types/source'
 import type { SourceAdapter } from './sourceAdapter'
 import { RSSAdapter } from './rssAdapter'
+import { TwitterAdapter } from './twitterAdapter'
+import { RedditAdapter } from './redditAdapter'
 import { isDuplicate } from './deduplicator'
 
 /**
@@ -29,10 +31,14 @@ export interface OrchestrationResult {
 }
 
 /**
- * Adapter registry - maps source types to adapter instances
+ * Adapter registry - maps source types to adapter instances (T042)
+ * Implements adapter pattern for extensible source support
  */
 const adapterRegistry = new Map<SourceType, SourceAdapter>([
   [SourceType.RSS, new RSSAdapter()],
+  // T046: Social media adapters registered (commented out until implemented)
+  [SourceType.SOCIAL_TWITTER, new TwitterAdapter()],
+  [SourceType.SOCIAL_REDDIT, new RedditAdapter()],
 ])
 
 /**

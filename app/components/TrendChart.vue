@@ -23,11 +23,12 @@
 
     <!-- Chart Canvas -->
     <div v-else class="chart-wrapper">
-      <Line
-        :data="chartData"
-        :options="chartOptions"
-        :style="{ height: chartHeight }"
-      />
+      <div :style="{ height: props.height }">
+        <Line
+          :data="chartData"
+          :options="chartOptions"
+        />
+      </div>
 
       <!-- Data Gaps Indicator -->
       <div v-if="hasGaps" class="gaps-indicator">
@@ -82,8 +83,6 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 // Computed properties
-const chartHeight = computed(() => props.height);
-
 const trendWindowDays = computed(() => {
   if (!props.trend) return 7;
   const start = new Date(props.trend.startDate);

@@ -1,0 +1,80 @@
+{
+  "sources": [
+    {
+      "id": "nu-nl-gezondheid",
+      "name": "NU.nl Gezondheid",
+      "type": "RSS",
+      "url": "https://www.nu.nl/rss/Gezondheid",
+      "category": "general",
+      "isActive": true,
+      "maxArticles": 30,
+      "timeout": 10000
+    },
+    {
+      "id": "nos-gezondheid",
+      "name": "NOS.nl Gezondheid",
+      "type": "RSS",
+      "url": "https://feeds.nos.nl/nosnieuwsgezondheid",
+      "category": "general",
+      "isActive": true,
+      "maxArticles": 30,
+      "timeout": 10000
+    },
+    {
+      "id": "rtl-nieuws-gezondheid",
+      "name": "RTL Nieuws Gezondheid",
+      "type": "RSS",
+      "url": "https://www.rtlnieuws.nl/feeds/rtlnieuws-gezondheid.xml",
+      "category": "general",
+      "isActive": true,
+      "maxArticles": 30,
+      "timeout": 10000
+    },
+    {
+      "id": "zorgkrant",
+      "name": "Zorgkrant RSS",
+      "type": "RSS",
+      "url": "https://www.zorgkrant.nl/feed/",
+      "category": "healthcare-specific",
+      "isActive": true,
+      "maxArticles": 30,
+      "timeout": 10000
+    },
+    {
+      "id": "skipr",
+      "name": "Skipr.nl",
+      "type": "RSS",
+      "url": "https://www.skipr.nl/rss.xml",
+      "category": "healthcare-specific",
+      "isActive": true,
+      "maxArticles": 30,
+      "timeout": 10000
+    },
+    {
+      "comment": "=== FUTURE SOCIAL MEDIA SOURCES (Not yet implemented) ===",
+      "placeholder": "Social media adapters will be implemented in future phases"
+    },
+    {
+      "id": "twitter-health-news",
+      "name": "Twitter Health News (Placeholder)",
+      "type": "SOCIAL_TWITTER",
+      "url": "https://api.twitter.com/2/tweets/search/recent",
+      "category": "general",
+      "isActive": false,
+      "maxArticles": 30,
+      "timeout": 10000,
+      "comment": "Placeholder for future Twitter integration. Requires API credentials and implementation of TwitterAdapter. See docs/extending-sources.md for details."
+    },
+    {
+      "id": "reddit-health",
+      "name": "Reddit Health Subreddit (Placeholder)",
+      "type": "SOCIAL_REDDIT",
+      "url": "https://www.reddit.com/r/health/.json",
+      "category": "general",
+      "isActive": false,
+      "maxArticles": 30,
+      "timeout": 10000,
+      "comment": "Placeholder for future Reddit integration. Requires implementation of RedditAdapter. See docs/extending-sources.md for details."
+    }
+  ]
+}
