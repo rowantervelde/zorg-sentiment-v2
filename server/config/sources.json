@@ -56,18 +56,6 @@
       "maxArticles": 30,
       "timeout": 10000,
       "priority": 1
-    },
-    {
-      "id": "test",
-      "name": "Test",
-      "type": "RSS",
-      "url": "https://www.tervelde.com/huh",
-      "category": "general",
-      "isActive": true,
-      "maxArticles": 30,
-      "timeout": 10000,
-      "priority": 1,
-      "comment": "TODO: Skip this test"
     }
   ]
 }
