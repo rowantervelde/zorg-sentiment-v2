@@ -173,14 +173,14 @@
 
 **Purpose**: Improvements affecting multiple user stories and final validation
 
-- [ ] T050 [P] [SHARED] Update main README.md with multi-source feature description and source list
-- [ ] T051 [P] [SHARED] Create `docs/architecture/multi-source-design.md` documenting orchestrator pattern and adapter system
+- [x] T050 [P] [SHARED] Update main README.md with multi-source feature description and source list
+- [x] T051 [P] [SHARED] Create `docs/architecture/multi-source-design.md` documenting orchestrator pattern and adapter system
 - [x] T052 [SHARED] Add comprehensive error logging for all source failures - Implemented source name tracking in rssFetcher (passed from adapter), orchestrator logs include source name for all errors, improved logging in collect-sentiment with timing metrics
 - [x] T053 [P] [SHARED] Optimize deduplication performance for >100 articles - Implemented three-stage algorithm: (1) O(1) hash matching, (2) Title-only Levenshtein with <50% early exit, (3) Full text only when titles 50-80% similar. Result: ~10-15s for 80 articles (9x improvement vs naive approach)
-- [ ] T054 [P] [SHARED] Add TypeScript strict mode checks for all new source-related files
+- [x] T054 [P] [SHARED] Add TypeScript strict mode checks for all new source-related files
 - [ ] T055 [SHARED] Run full quickstart.md verification checklist (20-minute setup guide validation)
 - [ ] T056 [SHARED] Conduct end-to-end test: Deploy to Netlify, trigger scheduled collection, verify all success criteria (SC-001 to SC-010)
-- [ ] T057 [P] [SHARED] Document source reliability monitoring process in `docs/operations.md` (how to check feed health, interpret metrics)
+- [x] T057 [P] [SHARED] Document source reliability monitoring process in `docs/operations.md` (how to check feed health, interpret metrics)
 - [ ] T058 [SHARED] Performance test: Simulate 7 days of collection cycles, verify average collection time < 2 minutes and success rate > 90%
 
 **Final Manual Test Checkpoint - Complete Feature**:

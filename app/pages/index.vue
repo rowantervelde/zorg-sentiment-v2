@@ -65,7 +65,7 @@
         <!-- Trend Chart (User Story 2 - T039) -->
         <TrendChart
           v-if="state.trend"
-          :trend="state.trend"
+          :trend="state.trend as TrendPeriod"
           class="trend-section"
         />
 
@@ -88,6 +88,8 @@
 </template>
 
 <script setup lang="ts">
+import type { TrendPeriod } from '~/types/sentiment';
+
 // Use sentiment composable (T028, T037)
 const { state, hasData, isLoading, hasError, fetchWithTrend } = useSentiment();
 

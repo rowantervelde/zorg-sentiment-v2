@@ -39,7 +39,7 @@ export default defineEventHandler(async (event): Promise<HealthResponse> => {
     if (history.dataPoints && history.dataPoints.length > 0) {
       const latestDataPoint = history.dataPoints[0]; // Newest first
       
-      if (latestDataPoint.sourceContributions && latestDataPoint.sourceContributions.length > 0) {
+      if (latestDataPoint && latestDataPoint.sourceContributions && latestDataPoint.sourceContributions.length > 0) {
         sources = latestDataPoint.sourceContributions.map((contrib) => {
           const sourceStatus = contrib.status === 'success' ? 'operational' : 'failed';
           
@@ -124,7 +124,7 @@ export default defineEventHandler(async (event): Promise<HealthResponse> => {
       
       if (history.dataPoints && history.dataPoints.length > 0) {
         const latestDataPoint = history.dataPoints[0];
-        if (latestDataPoint.sourceContributions) {
+        if (latestDataPoint && latestDataPoint.sourceContributions) {
           sources = latestDataPoint.sourceContributions.map((contrib) => ({
             id: contrib.sourceId,
             name: contrib.sourceName,
