@@ -1,0 +1,61 @@
+{
+  "sources": [
+    {
+      "id": "nu-nl-gezondheid",
+      "name": "NU.nl Gezondheid",
+      "type": "RSS",
+      "url": "https://www.nu.nl/rss/Gezondheid",
+      "category": "general",
+      "isActive": true,
+      "maxArticles": 30,
+      "timeout": 10000,
+      "priority": 1
+    },
+    {
+      "id": "nos-algemeen",
+      "name": "NOS.nl Algemeen",
+      "type": "RSS",
+      "url": "https://feeds.nos.nl/nosnieuwsalgemeen",
+      "category": "general",
+      "isActive": true,
+      "maxArticles": 30,
+      "timeout": 10000,
+      "priority": 1,
+      "comment": "TODO: Find working NOS health feed - using NOS Algemeen as temporary fallback"
+    },
+    {
+      "id": "zorgwijzer",
+      "name": "Zorgwijzer",
+      "type": "RSS",
+      "url": "https://www.zorgwijzer.nl/feed",
+      "category": "healthcare-specific",
+      "isActive": true,
+      "maxArticles": 30,
+      "timeout": 10000,
+      "priority": 1
+    },    
+    {
+      "id": "rtl-algemeen",
+      "name": "RTL Nieuws Algemeen",
+      "type": "RSS",
+      "url": "https://www.rtl.nl/rss.xml",
+      "category": "general",
+      "isActive": true,
+      "maxArticles": 30,
+      "timeout": 10000,
+      "priority": 1,
+      "comment": "TODO: Find working RTL health feed - using RTL Nieuws Algemeen as temporary fallback"
+    },
+    {
+      "id": "zorgkrant",
+      "name": "Zorgkrant",
+      "type": "RSS",
+      "url": "https://zorgkrant.nl/nieuwsoverzicht?format=feed&type=rss",
+      "category": "healthcare-specific",
+      "isActive": true,
+      "maxArticles": 30,
+      "timeout": 10000,
+      "priority": 1
+    }
+  ]
+}

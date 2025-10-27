@@ -9,7 +9,9 @@
 
 import type { Config, Context } from '@netlify/functions';
 import { getStore } from '@netlify/blobs';
-import type { SentimentDataPoint, MoodType, SentimentHistory, DataSource } from '../../app/types/sentiment';
+import type { SentimentDataPoint, MoodType, SentimentHistory, DataSource, SourceContribution, SourceDiversity } from '../../app/types/sentiment';
+import type { SourceConfiguration } from '../../server/types/sourceConfiguration';
+import sourcesConfig from '../../server/config/sources.json';
 
 const STORE_NAME = 'sentiment-data';
 const HISTORY_KEY = 'sentiment-history';
@@ -26,6 +28,88 @@ const MVP_DATA_SOURCE: DataSource = {
   fetchIntervalMinutes: 60,
   articlesPerFetch: 20,
 };
+
+/**
+ * Generate source contributions for a data point
+ * Uses actual sources from sources.json configuration
+ */
+function generateSourceContributions(timestamp: Date): SourceContribution[] {
+  const contributions: SourceContribution[] = [];
+  const sources = sourcesConfig.sources as SourceConfiguration[];
+  const activeSources = sources.filter(s => s.isActive);
+  
+  const totalArticles = 60 + Math.floor(Math.random() * 20); // 60-80 articles total
+  let remainingArticles = totalArticles;
+  
+  // Randomly fail 0-2 sources per collection
+  const failedCount = Math.random() < 0.3 ? (Math.random() < 0.5 ? 1 : 2) : 0;
+  const failedIndices = new Set<number>();
+  while (failedIndices.size < failedCount) {
+    failedIndices.add(Math.floor(Math.random() * activeSources.length));
+  }
+  
+  activeSources.forEach((source, index) => {
+    const isFailed = failedIndices.has(index);
+    const isLastSource = index === activeSources.length - 1;
+    
+    if (isFailed) {
+      contributions.push({
+        sourceId: source.id,
+        sourceName: source.name,
+        sourceType: source.type,
+        articlesCollected: 0,
+        sentimentBreakdown: { positive: 0, neutral: 0, negative: 0 },
+        fetchedAt: timestamp.toISOString(),
+        fetchDurationMs: 0,
+        status: 'failed',
+        error: 'Failed to fetch RSS feed: 404 Not Found',
+      });
+    } else {
+      // Distribute articles across successful sources (some variation)
+      const articleCount = isLastSource 
+        ? remainingArticles 
+        : Math.floor(Math.random() * 20) + 5; // 5-25 articles per source
+      
+      remainingArticles -= articleCount;
+      
+      // Generate varied sentiment per source
+      const positive = Math.floor(Math.random() * 60) + 20; // 20-80%
+      const negative = Math.floor(Math.random() * (80 - positive));
+      const neutral = 100 - positive - negative;
+      
+      contributions.push({
+        sourceId: source.id,
+        sourceName: source.name,
+        sourceType: source.type,
+        articlesCollected: articleCount,
+        sentimentBreakdown: {
+          positive: Math.round(positive),
+          neutral: Math.round(neutral),
+          negative: Math.round(negative),
+        },
+        fetchedAt: timestamp.toISOString(),
+        fetchDurationMs: 2000 + Math.floor(Math.random() * 5000), // 2-7 seconds
+        status: 'success',
+      });
+    }
+  });
+  
+  return contributions;
+}
+
+/**
+ * Calculate source diversity from contributions
+ */
+function calculateSourceDiversity(contributions: SourceContribution[]): SourceDiversity {
+  const activeSources = contributions.filter(c => c.status === 'success').length;
+  const failedSources = contributions.filter(c => c.status === 'failed').length;
+  
+  return {
+    totalSources: contributions.length,
+    activeSources,
+    failedSources,
+  };
+}
 
 /**
  * Generate realistic sentiment data with some variation
@@ -99,15 +183,26 @@ function generateDataPoint(hoursAgo: number): SentimentDataPoint {
   
   const summary = summaries[mood][Math.floor(Math.random() * summaries[mood].length)];
   
+  // Generate multi-source data
+  const sourceContributions = generateSourceContributions(timestamp);
+  const sourceDiversity = calculateSourceDiversity(sourceContributions);
+  
+  // Calculate total articles from all successful sources
+  const totalArticles = sourceContributions
+    .filter(c => c.status === 'success')
+    .reduce((sum, c) => sum + c.articlesCollected, 0);
+  
   return {
     timestamp: timestamp.toISOString(),
     collectionDurationMs: 100 + Math.random() * 200,
     moodClassification: mood,
     breakdown,
     summary,
-    articlesAnalyzed: 15 + Math.floor(Math.random() * 10),
-    source: 'test-data',
+    articlesAnalyzed: totalArticles,
+    source: 'multi-source', // Legacy field for backward compatibility
     confidence: 0.7 + Math.random() * 0.3,
+    sourceContributions,
+    sourceDiversity,
   };
 }
 

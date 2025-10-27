@@ -1,0 +1,310 @@
+openapi: 3.0.3
+info:
+  title: Zorg Sentiment - Source Contribution API
+  description: API endpoints for retrieving source contribution metrics and reliability data
+  version: 1.0.0
+  contact:
+    name: Zorg Sentiment Team
+
+servers:
+  - url: https://zorg-sentiment.netlify.app/api
+    description: Production
+  - url: http://localhost:3000/api
+    description: Local development
+
+paths:
+  /sentiment/sources:
+    get:
+      summary: Get source contribution metrics
+      description: |
+        Returns contribution data for all configured sources, including article counts,
+        sentiment breakdown per source, and reliability metrics. Data reflects the most
+        recent sentiment collection cycle.
+      operationId: getSourceContributions
+      tags:
+        - Sources
+      responses:
+        '200':
+          description: Successful response with source contribution data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceContributionResponse'
+              examples:
+                multipleSourcesSuccess:
+                  summary: Multiple sources with varying contributions
+                  value:
+                    timestamp: '2025-10-26T14:00:00Z'
+                    totalArticles: 127
+                    totalSourcesAttempted: 5
+                    activeSourcesCount: 4
+                    failedSourcesCount: 1
+                    sources:
+                      - sourceId: nu-nl-gezondheid
+                        sourceName: NU.nl Gezondheid
+                        sourceType: rss
+                        category: general
+                        articlesCollected: 45
+                        articlePercentage: 35.4
+                        sentimentBreakdown:
+                          positive: 42
+                          neutral: 38
+                          negative: 20
+                        fetchedAt: '2025-10-26T14:00:03Z'
+                        fetchDurationMs: 3245
+                        status: success
+                        reliability:
+                          successRate: 98.5
+                          avgResponseTimeMs: 2987
+                          consecutiveFailures: 0
+                          isHealthy: true
+                          isInactive: false
+                      - sourceId: nos-gezondheid
+                        sourceName: NOS.nl Gezondheid
+                        sourceType: rss
+                        category: general
+                        articlesCollected: 32
+                        articlePercentage: 25.2
+                        sentimentBreakdown:
+                          positive: 38
+                          neutral: 45
+                          negative: 17
+                        fetchedAt: '2025-10-26T14:00:05Z'
+                        fetchDurationMs: 4821
+                        status: success
+                        reliability:
+                          successRate: 95.2
+                          avgResponseTimeMs: 4123
+                          consecutiveFailures: 0
+                          isHealthy: true
+                          isInactive: false
+                      - sourceId: rtl-nieuws-gezondheid
+                        sourceName: RTL Nieuws Gezondheid
+                        sourceType: rss
+                        category: general
+                        articlesCollected: 0
+                        articlePercentage: 0
+                        sentimentBreakdown:
+                          positive: 0
+                          neutral: 0
+                          negative: 0
+                        fetchedAt: '2025-10-26T14:00:10Z'
+                        fetchDurationMs: 10000
+                        status: failed
+                        error: Request timeout after 10000ms
+                        reliability:
+                          successRate: 87.3
+                          avgResponseTimeMs: 5432
+                          consecutiveFailures: 3
+                          isHealthy: false
+                          isInactive: false
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: Failed to load source contribution data
+                message: Blob storage unavailable
+
+components:
+  schemas:
+    SourceContributionResponse:
+      type: object
+      required:
+        - timestamp
+        - totalArticles
+        - totalSourcesAttempted
+        - activeSourcesCount
+        - failedSourcesCount
+        - sources
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the sentiment data point
+          example: '2025-10-26T14:00:00Z'
+        totalArticles:
+          type: integer
+          minimum: 0
+          description: Total articles analyzed (after deduplication)
+          example: 127
+        totalSourcesAttempted:
+          type: integer
+          minimum: 0
+          description: Number of sources attempted in collection
+          example: 5
+        activeSourcesCount:
+          type: integer
+          minimum: 0
+          description: Number of sources that returned data
+          example: 4
+        failedSourcesCount:
+          type: integer
+          minimum: 0
+          description: Number of sources that failed
+          example: 1
+        sources:
+          type: array
+          description: Per-source contribution details
+          items:
+            $ref: '#/components/schemas/SourceContribution'
+
+    SourceContribution:
+      type: object
+      required:
+        - sourceId
+        - sourceName
+        - sourceType
+        - category
+        - articlesCollected
+        - articlePercentage
+        - sentimentBreakdown
+        - fetchedAt
+        - fetchDurationMs
+        - status
+      properties:
+        sourceId:
+          type: string
+          pattern: '^[a-z0-9-]+$'
+          description: Unique source identifier
+          example: nu-nl-gezondheid
+        sourceName:
+          type: string
+          description: Display name of source
+          example: NU.nl Gezondheid
+        sourceType:
+          type: string
+          enum: [rss, social, other]
+          description: Type of data source
+          example: rss
+        category:
+          type: string
+          enum: [general, healthcare-specific]
+          description: Source category
+          example: general
+        articlesCollected:
+          type: integer
+          minimum: 0
+          description: Number of articles from this source
+          example: 45
+        articlePercentage:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Percentage of total articles from this source
+          example: 35.4
+        sentimentBreakdown:
+          type: object
+          required: [positive, neutral, negative]
+          description: Sentiment distribution from this source
+          properties:
+            positive:
+              type: integer
+              minimum: 0
+              maximum: 100
+              description: Positive sentiment percentage
+              example: 42
+            neutral:
+              type: integer
+              minimum: 0
+              maximum: 100
+              description: Neutral sentiment percentage
+              example: 38
+            negative:
+              type: integer
+              minimum: 0
+              maximum: 100
+              description: Negative sentiment percentage
+              example: 20
+        fetchedAt:
+          type: string
+          format: date-time
+          description: When articles were fetched from this source
+          example: '2025-10-26T14:00:03Z'
+        fetchDurationMs:
+          type: integer
+          minimum: 0
+          description: Time taken to fetch from this source (milliseconds)
+          example: 3245
+        status:
+          type: string
+          enum: [success, failed, partial]
+          description: Fetch status
+          example: success
+        error:
+          type: string
+          description: Error message if status is failed
+          example: Request timeout after 10000ms
+        reliability:
+          $ref: '#/components/schemas/SourceReliability'
+
+    SourceReliability:
+      type: object
+      required:
+        - successRate
+        - avgResponseTimeMs
+        - consecutiveFailures
+        - isHealthy
+        - isInactive
+      properties:
+        successRate:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Percentage of successful fetches in 7-day window
+          example: 98.5
+        avgResponseTimeMs:
+          type: integer
+          minimum: 0
+          description: Average response time in 7-day window
+          example: 2987
+        consecutiveFailures:
+          type: integer
+          minimum: 0
+          description: Current streak of consecutive failures
+          example: 0
+        lastSuccessAt:
+          type: string
+          format: date-time
+          description: Timestamp of most recent successful fetch
+          example: '2025-10-26T14:00:03Z'
+        lastFailureAt:
+          type: string
+          format: date-time
+          description: Timestamp of most recent failed fetch
+          example: '2025-10-25T08:00:12Z'
+        isHealthy:
+          type: boolean
+          description: True if success rate >= 90%
+          example: true
+        isInactive:
+          type: boolean
+          description: True if consecutive failures >= 72 (72 hours)
+          example: false
+        inactiveMarkedAt:
+          type: string
+          format: date-time
+          description: When source was marked inactive
+          example: null
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error type or short description
+          example: Internal server error
+        message:
+          type: string
+          description: Detailed error message
+          example: Failed to load data from blob storage
+
+tags:
+  - name: Sources
+    description: Source contribution and reliability endpoints

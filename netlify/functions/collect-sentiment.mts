@@ -1,19 +1,19 @@
 /**
  * Netlify Scheduled Function: Collect Sentiment Data
- * Runs hourly to fetch RSS feed, analyze sentiment, and store results
+ * Runs hourly to fetch from multiple RSS feeds, analyze sentiment, and store results
  * Schedule configured in netlify.toml: @hourly
+ * 
+ * Updated for multi-source collection (feature 002-multi-source-sentiment)
  */
 
 import type { Config } from '@netlify/functions';
 import type { SentimentDataPoint } from '../../app/types/sentiment';
-import { fetchRSSFeed, limitArticles } from '../../server/utils/rssFetcher';
+import type { SourceConfiguration } from '../../server/types/sourceConfiguration';
+import { fetchFromAllSources } from '../../server/utils/sourceOrchestrator';
 import { analyzeMultiple, calculateConfidence } from '../../server/utils/sentimentAnalyzer';
 import { generateMoodSummary } from '../../server/utils/moodSummary';
-import { addDataPoint, updateDataSourceStatus } from '../../server/utils/storage';
-
-const RSS_FEED_URL = process.env.RSS_FEED_URL || 'https://www.nu.nl/rss/Gezondheid';
-const ARTICLES_PER_FETCH = 20;
-const SOURCE_ID = 'nu-nl-gezondheid';
+import { addDataPoint } from '../../server/utils/storage';
+import sourcesConfig from '../../server/config/sources.json';
 
 /**
  * Main scheduled function handler
@@ -23,40 +23,87 @@ export default async (req: Request) => {
   
   try {
     const { next_run } = await req.json();
-    console.log('[Collect Sentiment] Starting collection. Next run:', next_run);
+    console.log('[Collect Sentiment] Starting multi-source collection. Next run:', next_run);
 
-    // Step 1: Fetch RSS feed
-    console.log('[Collect Sentiment] Fetching RSS feed:', RSS_FEED_URL);
-    const articles = await fetchRSSFeed(RSS_FEED_URL);
-    const limitedArticles = limitArticles(articles, ARTICLES_PER_FETCH);
+    // Step 1: Load source configurations
+    const sources = sourcesConfig.sources as SourceConfiguration[];
+    console.log(`[Collect Sentiment] Loaded ${sources.length} source configurations`);
+    console.time('[Collect Sentiment] Total duration');
+
+    // Step 2: Fetch from all sources with orchestration
+    console.log('[Collect Sentiment] Fetching from all sources...');
+    console.time('[Collect Sentiment] Orchestration');
+    const orchestrationResult = await fetchFromAllSources(sources);
+    console.timeEnd('[Collect Sentiment] Orchestration');
     
-    console.log(`[Collect Sentiment] Fetched ${articles.length} articles, using ${limitedArticles.length}`);
+    const { articles, sourceContributions, sourceDiversity, totalDurationMs } = orchestrationResult;
+    
+    console.log(`[Collect Sentiment] Orchestration complete in ${totalDurationMs}ms`);
+    console.log(`[Collect Sentiment] Collected ${articles.length} unique articles from ${sourceDiversity.activeSources}/${sourceDiversity.totalSources} sources`);
+    console.log(`[Collect Sentiment] Source contributions: ${sourceContributions.length} sources tracked`);
 
-    if (limitedArticles.length === 0) {
-      console.warn('[Collect Sentiment] No articles found in RSS feed');
-      await updateDataSourceStatus(SOURCE_ID, false, 'No articles found in RSS feed');
+    if (articles.length === 0) {
+      console.warn('[Collect Sentiment] No articles collected from any source');
+      
       return new Response(JSON.stringify({ 
         success: false, 
-        error: 'No articles found' 
+        error: 'No articles collected from any source',
+        sourceContributions,
+        sourceDiversity,
       }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    // Step 2: Analyze sentiment
+    // Step 3: Analyze sentiment across all articles
     console.log('[Collect Sentiment] Analyzing sentiment...');
-    const articleTexts = limitedArticles.map((a) => a.content);
+    console.time('[Collect Sentiment] Sentiment analysis');
+    const articleTexts = articles.map((a) => a.content);
+    console.log(`[Collect Sentiment] Analyzing ${articleTexts.length} article texts...`);
+    
     const analysis = analyzeMultiple(articleTexts);
+    console.timeEnd('[Collect Sentiment] Sentiment analysis');
     
     console.log('[Collect Sentiment] Analysis complete:', {
       mood: analysis.moodClassification,
       breakdown: analysis.breakdown,
     });
 
-    // Step 3: Generate mood summary
+    // Step 4: Calculate per-source sentiment breakdown
+    console.log('[Collect Sentiment] Calculating per-source sentiment breakdowns...');
+    console.time('[Collect Sentiment] Per-source analysis');
+    const updatedContributions = sourceContributions.map((contribution) => {
+      if (contribution.status === 'failed' || contribution.articlesCollected === 0) {
+        console.log(`[Collect Sentiment] Skipping ${contribution.sourceName}: status=${contribution.status}`);
+        return contribution;
+      }
+      
+      // Get articles from this source
+      const sourceArticles = articles.filter((a) => a.sourceId === contribution.sourceId);
+      
+      if (sourceArticles.length === 0) {
+        console.log(`[Collect Sentiment] No articles found for ${contribution.sourceName} in deduplicated set`);
+        return contribution;
+      }
+      
+      // Analyze sentiment for this source's articles
+      const sourceTexts = sourceArticles.map((a) => a.content);
+      console.log(`[Collect Sentiment] Analyzing ${sourceTexts.length} articles from ${contribution.sourceName}...`);
+      const sourceAnalysis = analyzeMultiple(sourceTexts);
+      
+      return {
+        ...contribution,
+        sentimentBreakdown: sourceAnalysis.breakdown,
+      };
+    });
+    console.timeEnd('[Collect Sentiment] Per-source analysis');
+    console.log(`[Collect Sentiment] Per-source sentiment analysis complete for ${updatedContributions.length} sources`);
+
+    // Step 5: Generate mood summary
+    console.log('[Collect Sentiment] Generating mood summary...');
     const timestamp = new Date().toISOString();
-    const confidence = calculateConfidence(analysis, limitedArticles.length);
+    const confidence = calculateConfidence(analysis, articles.length);
     
     const dataPoint: SentimentDataPoint = {
       timestamp,
@@ -64,30 +111,48 @@ export default async (req: Request) => {
       moodClassification: analysis.moodClassification,
       breakdown: analysis.breakdown,
       summary: '', // Will be set below
-      articlesAnalyzed: limitedArticles.length,
-      source: SOURCE_ID,
+      articlesAnalyzed: articles.length,
+      source: 'multi-source', // Legacy field - kept for backward compatibility
       confidence,
+      sourceContributions: updatedContributions,
+      sourceDiversity,
     };
 
     const moodSummary = generateMoodSummary(dataPoint);
     dataPoint.summary = moodSummary.text;
 
     console.log('[Collect Sentiment] Generated summary:', moodSummary.text);
+    console.log('[Collect Sentiment] Data point object created:', {
+      timestamp: dataPoint.timestamp,
+      mood: dataPoint.moodClassification,
+      articlesAnalyzed: dataPoint.articlesAnalyzed,
+      sourceContributions: dataPoint.sourceContributions?.length,
+    });
 
-    // Step 4: Store data point with 7-day retention validation (FR-012)
+    // Step 6: Store data point with 7-day retention validation
     console.log('[Collect Sentiment] Saving data point with 7-day retention validation...');
-    await addDataPoint(dataPoint);
-    await updateDataSourceStatus(SOURCE_ID, true);
+    console.time('[Collect Sentiment] Storage save');
+    try {
+      await addDataPoint(dataPoint);
+      console.timeEnd('[Collect Sentiment] Storage save');
+      console.log('[Collect Sentiment] Data point saved successfully to storage');
+    } catch (storageError) {
+      console.error('[Collect Sentiment] CRITICAL ERROR saving data point:', storageError);
+      throw storageError;
+    }
 
-    // Verify data retention (7-day max per FR-012)
+    // Verify data retention (7-day max)
+    console.log('[Collect Sentiment] Verifying data retention...');
+    console.time('[Collect Sentiment] Verify retention');
     const { getData } = await import('../../server/utils/storage');
     const history = await getData();
     const retentionDays = history.retentionDays;
     const oldestAllowed = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000);
     
     const violatingPoints = history.dataPoints.filter(
-      (dp) => new Date(dp.timestamp) < oldestAllowed
+      (dp: SentimentDataPoint) => new Date(dp.timestamp) < oldestAllowed
     );
+    console.timeEnd('[Collect Sentiment] Verify retention');
     
     if (violatingPoints.length > 0) {
       console.warn(`[Collect Sentiment] Found ${violatingPoints.length} data points older than ${retentionDays} days (should have been cleaned up)`);
@@ -96,7 +161,9 @@ export default async (req: Request) => {
     }
 
     const duration = Date.now() - startTime;
+    console.timeEnd('[Collect Sentiment] Total duration');
     console.log(`[Collect Sentiment] Collection complete in ${duration}ms`);
+    console.log(`[Collect Sentiment] Source diversity: ${sourceDiversity.activeSources} active, ${sourceDiversity.failedSources} failed`);
 
     return new Response(JSON.stringify({
       success: true,
@@ -104,6 +171,7 @@ export default async (req: Request) => {
         timestamp: dataPoint.timestamp,
         mood: dataPoint.moodClassification,
         articlesAnalyzed: dataPoint.articlesAnalyzed,
+        sourceDiversity: dataPoint.sourceDiversity,
       },
       durationMs: duration,
     }), {
@@ -113,12 +181,6 @@ export default async (req: Request) => {
 
   } catch (error) {
     console.error('[Collect Sentiment] Error during collection:', error);
-    
-    await updateDataSourceStatus(
-      SOURCE_ID,
-      false,
-      error instanceof Error ? error.message : 'Unknown error'
-    );
 
     return new Response(JSON.stringify({
       success: false,

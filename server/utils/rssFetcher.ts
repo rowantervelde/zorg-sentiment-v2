@@ -21,9 +21,10 @@ export async function fetchRSSFeed(
     maxRetries?: number;
     retryDelay?: number;
     timeout?: number;
+    sourceName?: string; // For better error logging
   }
 ): Promise<RSSArticle[]> {
-  const { maxRetries = 3, retryDelay = 1000, timeout = 10000 } = options || {};
+  const { maxRetries = 3, retryDelay = 1000, timeout = 10000, sourceName = 'Unknown' } = options || {};
 
   let lastError: Error | null = null;
 
@@ -46,7 +47,7 @@ export async function fetchRSSFeed(
         const retryAfter = response.headers.get('Retry-After');
         const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : retryDelay * (attempt + 1);
         
-        console.warn(`[rssFetcher] Rate limited (429). Retry after ${waitTime}ms`);
+        console.warn(`[rssFetcher] ${sourceName}: Rate limited (429). Retry after ${waitTime}ms`);
         lastError = new Error(`Rate limited: retry after ${waitTime}ms`);
         
         if (attempt < maxRetries - 1) {
@@ -57,7 +58,7 @@ export async function fetchRSSFeed(
 
       // Handle server errors (5xx)
       if (response.status >= 500) {
-        console.warn(`[rssFetcher] Server error (${response.status}). Attempt ${attempt + 1}/${maxRetries}`);
+        console.warn(`[rssFetcher] ${sourceName}: Server error (${response.status}). Attempt ${attempt + 1}/${maxRetries}`);
         lastError = new Error(`Server error: ${response.status} ${response.statusText}`);
         
         if (attempt < maxRetries - 1) {
@@ -74,7 +75,7 @@ export async function fetchRSSFeed(
       const xmlText = await response.text();
       const articles = parseRSSXML(xmlText);
 
-      console.log(`[rssFetcher] Successfully fetched ${articles.length} articles`);
+      console.log(`[rssFetcher] ${sourceName}: Successfully fetched ${articles.length} articles`);
       return articles;
       
     } catch (error) {
@@ -82,9 +83,9 @@ export async function fetchRSSFeed(
       
       // Check if it's a timeout error
       if (error instanceof Error && error.name === 'AbortError') {
-        console.warn(`[rssFetcher] Request timeout after ${timeout}ms. Attempt ${attempt + 1}/${maxRetries}`);
+        console.warn(`[rssFetcher] ${sourceName}: Request timeout after ${timeout}ms. Attempt ${attempt + 1}/${maxRetries}`);
       } else {
-        console.error(`[rssFetcher] Error on attempt ${attempt + 1}/${maxRetries}:`, error);
+        console.error(`[rssFetcher] ${sourceName}: Error on attempt ${attempt + 1}/${maxRetries}:`, error);
       }
 
       // Retry with exponential backoff
@@ -95,8 +96,8 @@ export async function fetchRSSFeed(
   }
 
   // All retries failed
-  console.error('[rssFetcher] All retry attempts failed. Graceful fallback: returning empty array');
-  console.error('[rssFetcher] Last error:', lastError);
+  console.error(`[rssFetcher] ${sourceName}: All retry attempts failed. Graceful fallback: returning empty array`);
+  console.error(`[rssFetcher] ${sourceName}: Last error:`, lastError);
   
   // Graceful fallback per FR-008: return empty array instead of throwing
   return [];
