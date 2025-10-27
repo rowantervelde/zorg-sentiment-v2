@@ -97,14 +97,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T024 [P] [US2] Create `app/types/api.ts` with SourceContributionResponse interface (matches contracts/sources-api.yaml schema)
-- [ ] T025 [P] [US2] Create `app/types/api.ts` with SourceMetrics interface for aggregated statistics (successRate, avgArticles, lastFetchStatus)
-- [ ] T026 [US2] Create `server/api/sentiment/sources.get.ts` endpoint implementing GET /api/sentiment/sources
-- [ ] T027 [US2] Implement readLatestSources function in `server/api/sentiment/sources.get.ts` (reads latest sentiment blob, extracts sourceContributions)
-- [ ] T028 [US2] Implement calculateSourceMetrics function in `server/api/sentiment/sources.get.ts` (aggregates 7-day metrics per source)
-- [ ] T029 [US2] Add caching headers to `server/api/sentiment/sources.get.ts` (5-minute cache per research.md)
-- [ ] T030 [US2] Add error handling to `server/api/sentiment/sources.get.ts` for missing data scenarios (returns empty array with 200 status)
-- [ ] T031 [US2] Update `server/middleware/cors.ts` to allow /api/sentiment/sources endpoint (if not already covered)
+- [x] T024 [P] [US2] Create `app/types/api.ts` with SourceContributionResponse interface (matches contracts/sources-api.yaml schema)
+- [x] T025 [P] [US2] Create `app/types/api.ts` with SourceMetrics interface for aggregated statistics (successRate, avgArticles, lastFetchStatus)
+- [x] T026 [US2] Create `server/api/sentiment/sources.get.ts` endpoint implementing GET /api/sentiment/sources
+- [x] T027 [US2] Implement readLatestSources function in `server/api/sentiment/sources.get.ts` (reads latest sentiment blob, extracts sourceContributions)
+- [x] T028 [US2] Implement calculateSourceMetrics function in `server/api/sentiment/sources.get.ts` (aggregates 7-day metrics per source)
+- [x] T029 [US2] Add caching headers to `server/api/sentiment/sources.get.ts` (5-minute cache per research.md)
+- [x] T030 [US2] Add error handling to `server/api/sentiment/sources.get.ts` for missing data scenarios (returns empty array with 200 status)
+- [x] T031 [US2] Update `server/middleware/cors.ts` to allow /api/sentiment/sources endpoint (if not already covered)
 
 **Manual Test Checkpoint - User Story 2**:
 
