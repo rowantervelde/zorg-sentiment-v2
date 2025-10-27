@@ -99,7 +99,7 @@ The data collection architecture supports multiple source types (not just RSS), 
 - **FR-004**: System MUST track the source (feed name/identifier) for each article collected
 - **FR-005**: System MUST store source contribution metrics including article count per source and timestamp of last successful fetch
 - **FR-006**: System MUST provide an API endpoint exposing source contribution data for each sentiment data point (article counts, sentiment breakdown per source, fetch status)
-- **FR-007**: System MUST detect and handle duplicate articles across different RSS feeds by comparing title and content similarity (80% or higher similarity threshold)
+- **FR-007**: System MUST detect and handle duplicate articles across different RSS feeds using a three-stage algorithm: (1) SHA-256 hash exact matching (O(1) performance), (2) Title-only fuzzy matching using Levenshtein distance (80% similarity threshold), (3) Full text fuzzy matching only when titles are 50-80% similar (performance optimization)
 - **FR-008**: System MUST support RSS feed configuration including feed URL, name/identifier, category, and active/inactive status
 - **FR-009**: System MUST validate RSS feed configuration on startup and log errors for invalid feeds without blocking valid feeds
 - **FR-010**: System MUST track RSS feed reliability metrics (success rate, avgResponseTimeMs, consecutive failures) with a 10-second timeout per request

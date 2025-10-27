@@ -75,14 +75,46 @@ export function titleContentSimilarity(text1: string, text2: string): number {
  * @returns true if article is a duplicate (>= 80% similar to any existing article)
  */
 export function isDuplicate(article: Article, existingArticles: Article[]): boolean {
-  // Combine title and description for comparison
-  const articleText = `${article.title} ${article.description}`
+  // Quick check: exact hash match (much faster than Levenshtein)
+  for (const existing of existingArticles) {
+    if (article.deduplicationHash === existing.deduplicationHash) {
+      return true // Exact duplicate found via hash
+    }
+  }
+  
+  // Two-stage fuzzy matching for performance:
+  // Stage 1: Compare titles only (short text, fast)
+  // Stage 2: Only if titles are similar, compare full text
   
   for (const existing of existingArticles) {
-    const existingText = `${existing.title} ${existing.description}`
-    const similarity = titleContentSimilarity(articleText, existingText)
+    // Stage 1: Quick title check
+    const titleSimilarity = titleContentSimilarity(article.title, existing.title)
     
-    if (similarity >= SIMILARITY_THRESHOLD) {
+    // If titles are very different (<50% similar), skip this article entirely
+    if (titleSimilarity < 0.5) {
+      continue
+    }
+    
+    // If titles are very similar (>=80%), it's likely a duplicate
+    if (titleSimilarity >= SIMILARITY_THRESHOLD) {
+      return true
+    }
+    
+    // Stage 2: Titles are somewhat similar (50-80%), check full text
+    // Only combine title + description if needed
+    const articleText = `${article.title} ${article.description}`
+    const existingText = `${existing.title} ${existing.description}`
+    
+    // Skip if texts are vastly different in length (optimization)
+    const lengthDiff = Math.abs(articleText.length - existingText.length)
+    const maxLength = Math.max(articleText.length, existingText.length)
+    if (lengthDiff / maxLength > 0.5) {
+      continue // If length differs by >50%, skip expensive Levenshtein calculation
+    }
+    
+    const fullSimilarity = titleContentSimilarity(articleText, existingText)
+    
+    if (fullSimilarity >= SIMILARITY_THRESHOLD) {
       return true
     }
   }

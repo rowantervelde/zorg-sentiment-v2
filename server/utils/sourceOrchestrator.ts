@@ -98,9 +98,12 @@ export async function fetchFromAllSources(
   })
   
   // Deduplicate articles across sources
+  console.log(`[Orchestrator] Starting deduplication of ${allArticles.length} articles...`)
+  const dedupeStart = Date.now()
   const uniqueArticles = deduplicateArticles(allArticles)
+  const dedupeDuration = Date.now() - dedupeStart
   
-  console.log(`[Orchestrator] Deduplication: ${allArticles.length} → ${uniqueArticles.length} articles`)
+  console.log(`[Orchestrator] Deduplication: ${allArticles.length} → ${uniqueArticles.length} articles (took ${dedupeDuration}ms)`)
   
   // Calculate source diversity
   const sourceDiversity: SourceDiversity = {

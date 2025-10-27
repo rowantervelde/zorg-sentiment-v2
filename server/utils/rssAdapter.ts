@@ -25,6 +25,7 @@ export class RSSAdapter implements SourceAdapter {
     const rssArticles = await fetchRSSFeed(config.url, {
       timeout,
       maxRetries: 1, // Single attempt per orchestrator pattern
+      sourceName: config.name, // Pass source name for better logging
     })
 
     // Limit articles BEFORE deduplication (per FR-014 clarification)

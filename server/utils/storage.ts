@@ -76,9 +76,11 @@ export async function saveData(history: SentimentHistory): Promise<void> {
   const store = getSentimentStore();
   
   try {
+    console.log(`[Storage] Saving ${history.dataPoints.length} data points to Netlify Blobs...`);
     await store.setJSON(HISTORY_KEY, history);
+    console.log('[Storage] Successfully saved to Netlify Blobs');
   } catch (error) {
-    console.error('Error saving sentiment data:', error);
+    console.error('[Storage] Error saving sentiment data:', error);
     throw new Error('Failed to save sentiment data');
   }
 }
@@ -87,19 +89,29 @@ export async function saveData(history: SentimentHistory): Promise<void> {
  * Add a new data point and clean up old data (7-day window)
  */
 export async function addDataPoint(dataPoint: SentimentDataPoint): Promise<void> {
-  const history = await getData();
-  
-  // Add new data point at the beginning (newest first)
-  history.dataPoints.unshift(dataPoint);
-  
-  // Clean up data older than retention period
-  const cleanedHistory = cleanup7DayWindow(history);
-  
-  // Update metadata
-  cleanedHistory.lastUpdated = new Date().toISOString();
-  
-  // Save back to storage
-  await saveData(cleanedHistory);
+  try {
+    const history = await getData();
+    
+    // Add new data point at the beginning (newest first)
+    history.dataPoints.unshift(dataPoint);
+    
+    // Clean up data older than retention period
+    const cleanedHistory = cleanup7DayWindow(history);
+    
+    // Update metadata
+    cleanedHistory.lastUpdated = new Date().toISOString();
+    
+    console.log(`[Storage] Adding data point. Total points now: ${cleanedHistory.dataPoints.length}`);
+    console.log(`[Storage] Latest data point timestamp: ${cleanedHistory.dataPoints[0]?.timestamp}`);
+    
+    // Save back to storage
+    await saveData(cleanedHistory);
+    
+    console.log('[Storage] Data point saved successfully');
+  } catch (error) {
+    console.error('[Storage] Error adding data point:', error);
+    throw error;
+  }
 }
 
 /**
