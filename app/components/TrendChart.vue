@@ -177,9 +177,18 @@ const hasGaps = computed(() => {
   return gaps.length > 0;
 });
 
+// Reversed data points for chronological display (oldest to newest)
+// Data is stored newest-first, but charts should show chronological order
+const reversedDataPoints = computed(() => {
+  if (!hasData.value || !props.trend) return [];
+  return [...props.trend.dataPoints].reverse();
+});
+
+// Use reversed data points for significant change detection
+// This ensures indices match the chart display order
 const significantChanges = computed(() => {
   if (!hasData.value || !props.trend) return [];
-  return detectSignificantChanges(props.trend.dataPoints, 20);
+  return detectSignificantChanges(reversedDataPoints.value, 20);
 });
 
 // Chart data
@@ -191,7 +200,8 @@ const chartData = computed<ChartData<'line'>>(() => {
     };
   }
 
-  const dataPoints = props.trend.dataPoints;
+  // Use reversed data points for chronological display
+  const dataPoints = reversedDataPoints.value;
 
   // Generate labels (dates/times)
   const labels = dataPoints.map((dp) => {
@@ -278,8 +288,9 @@ const chartOptions = computed<ChartOptions<'line'>>(() => {
             if (!firstContext) return '';
             
             const index = firstContext.dataIndex;
-            if (props.trend && props.trend.dataPoints[index]) {
-              const dp = props.trend.dataPoints[index];
+            const reversedPoints = reversedDataPoints.value;
+            if (reversedPoints[index]) {
+              const dp = reversedPoints[index];
               const date = new Date(dp.timestamp);
               return date.toLocaleString('nl-NL', {
                 weekday: 'short',
@@ -296,9 +307,10 @@ const chartOptions = computed<ChartOptions<'line'>>(() => {
             if (value === null) return '';
             
             const index = context.dataIndex;
+            const reversedPoints = reversedDataPoints.value;
             
-            if (props.trend && props.trend.dataPoints[index]) {
-              const dp = props.trend.dataPoints[index];
+            if (reversedPoints[index]) {
+              const dp = reversedPoints[index];
               const mood = dp.moodClassification;
               const moodEmoji = mood === 'positive' ? '😊' : mood === 'negative' ? '😟' : '😐';
               
