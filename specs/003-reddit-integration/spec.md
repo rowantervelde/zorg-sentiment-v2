@@ -5,7 +5,15 @@
 **Status**: Draft  
 **Input**: User description: "The app also needs to get relevant information from reddit. App is already prepared for this."
 
-## User Scenarios & Testing *(mandatory)*
+## Clarifications
+
+### Session 2025-11-02
+
+- Q: Which approach should be used for Reddit API integration? → A: Use `snoowrap` library with built-in OAuth2 and rate limiting
+- Q: Which approach should be used for Dutch language detection? → A: Keyword-based detection using Dutch healthcare terms
+- Q: What should the exponential backoff timing be for Reddit API retries? → A: 1s, 2s, 4s progression
+
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Collect Sentiment from Dutch Healthcare Reddit Communities (Priority: P1)
 
@@ -69,7 +77,7 @@ The system filters Reddit posts based on relevance criteria (keyword matching, m
 - What about Reddit posts that are duplicates of news articles? Cross-source deduplication (80% similarity) applies to Reddit posts same as RSS; first occurrence (by timestamp) is kept
 - How should system weight Reddit community posts vs professional news articles? Initial implementation: equal weight per post; future enhancement could apply source authority scoring
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -82,7 +90,7 @@ The system filters Reddit posts based on relevance criteria (keyword matching, m
 - **FR-007**: System MUST deduplicate Reddit posts against existing RSS articles and other Reddit posts using the same 80% similarity threshold algorithm
 - **FR-008**: System MUST filter Reddit posts by relevance using keyword matching on post title and body (keywords: zorgverzekering, premie, eigen risico, zorgkosten, etc.)
 - **FR-009**: System MUST filter Reddit posts by minimum quality threshold: posts with score >= 5 OR comment count >= 3 (configurable per subreddit)
-- **FR-010**: System MUST filter Reddit posts by language, including only Dutch-language posts (using language detection or subreddit rules)
+- **FR-010**: System MUST filter Reddit posts by language, including only Dutch-language posts using keyword-based detection (presence of Dutch healthcare terms: zorgverzekering, zorg, premie, etc.)
 - **FR-011**: System MUST support Reddit source configuration including subreddit name, search query, minimum score threshold, and active/inactive status
 - **FR-012**: System MUST implement the existing RedditAdapter interface (already defined in server/utils/redditAdapter.ts) to integrate with the multi-source orchestrator
 - **FR-013**: System MUST store Reddit API credentials securely in environment variables (REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET)
@@ -90,7 +98,7 @@ The system filters Reddit posts based on relevance criteria (keyword matching, m
 - **FR-015**: System MUST include top-level comments on relevant posts (limit: top 5 comments by score) to capture discussion sentiment
 - **FR-016**: System MUST track Reddit-specific engagement metrics (upvotes, upvote ratio, comment count) in Article.engagementMetrics field
 - **FR-017**: System MUST respect Reddit API best practices (user agent, rate limiting, caching) to avoid IP bans or throttling
-- **FR-018**: System MUST handle Reddit API errors (403, 429, 500, 503) with exponential backoff retry strategy (max 3 retries)
+- **FR-018**: System MUST handle Reddit API errors (403, 429, 500, 503) with exponential backoff retry strategy: 1 second, 2 seconds, 4 seconds (max 3 retries, ~7 seconds total)
 - **FR-019**: System MUST mark Reddit sources as inactive after 72 hours of consecutive failures (same as RSS feeds)
 - **FR-020**: System MUST limit Reddit posts per subreddit to 20 posts before deduplication (lower than RSS due to typically higher volume)
 
@@ -107,7 +115,8 @@ The following Dutch Reddit communities MUST be supported as initial sources (all
 
 ### Key Entities
 
-- **Reddit Post (extends Article)**: 
+- **Reddit Post (extends Article)**:
+
   - Normalized to Article interface with Reddit-specific fields
   - Contains subreddit name, post ID, author username (u/...)
   - Includes engagement metrics: upvotes (score), upvote ratio, comment count
@@ -115,6 +124,7 @@ The following Dutch Reddit communities MUST be supported as initial sources (all
   - Content combines post title + selftext (for text posts) or title + URL (for link posts)
 
 - **Reddit Source Configuration (extends SourceConfiguration)**:
+
   - Type: SOCIAL_REDDIT (enum value already defined)
   - Additional config fields: subreddit name, search keywords, minimum score, time window
   - Credentials stored separately in environment variables
@@ -124,7 +134,7 @@ The following Dutch Reddit communities MUST be supported as initial sources (all
   - Tracks rate limit remaining and reset time per API endpoint
   - Maintains last successful fetch timestamp per subreddit
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
@@ -145,12 +155,12 @@ The following Dutch Reddit communities MUST be supported as initial sources (all
 - **DQ-002**: Average Reddit post engagement (upvotes + comments) is >= 8 (indicates quality content, not spam)
 - **DQ-003**: Reddit posts contribute 10-30% of total articles in sentiment analysis (balance with RSS feeds, not overwhelming)
 
-## Assumptions *(mandatory)*
+## Assumptions _(mandatory)_
 
 1. **Reddit API Access**: Application can register for Reddit API credentials (client ID and secret) using standard OAuth2 app registration process (free tier, no cost)
 2. **No User Authentication**: Reddit data collection uses app-only OAuth2 (client credentials flow), not user-specific auth; public subreddit data is accessible without user login
 3. **Subreddit Accessibility**: Target subreddits (r/zorgverzekering, r/thenetherlands, etc.) are public and do not require membership or approval to read
-4. **Language Detection**: Dutch language detection can be performed using simple keyword matching or lightweight language detection library (lingua, franc, etc.) without ML models
+4. **Language Detection**: Dutch language detection is performed using keyword-based matching on Dutch healthcare terms (zorgverzekering, zorg, premie, etc.), which is faster and more domain-specific than general-purpose language detection libraries
 5. **Existing Architecture**: The multi-source orchestrator pattern from feature 002 is fully functional and can be extended with RedditAdapter implementation
 6. **Engagement Threshold**: Posts with score >= 5 or comments >= 3 represent substantive discussions worth including in sentiment analysis (threshold may need tuning based on actual data)
 7. **Rate Limit Headroom**: 60 requests/minute Reddit API limit is sufficient for fetching top 20 posts from 4 subreddits (~80-100 requests including comments) within hourly collection window
@@ -158,7 +168,7 @@ The following Dutch Reddit communities MUST be supported as initial sources (all
 9. **Historical Data**: Initial implementation collects posts from last 24 hours only; no historical backfill of older Reddit data required
 10. **Deduplication Accuracy**: 80% similarity threshold (same as RSS) is appropriate for Reddit posts; Reddit discussions of news articles will be detected as duplicates and excluded
 
-## Dependencies *(include if applicable)*
+## Dependencies _(include if applicable)_
 
 ### External Dependencies
 
@@ -170,7 +180,7 @@ The following Dutch Reddit communities MUST be supported as initial sources (all
 ### Internal Dependencies
 
 - **Feature 002 (Multi-Source Sentiment)**: RedditAdapter must implement SourceAdapter interface and integrate with sourceOrchestrator
-- **Existing Infrastructure**: 
+- **Existing Infrastructure**:
   - Article interface (server/types/article.ts) with optional social media fields already defined
   - Deduplicator utility (server/utils/deduplicator.ts) for cross-source duplicate detection
   - Storage layer (server/utils/storage.ts) for persisting source contributions
@@ -178,18 +188,17 @@ The following Dutch Reddit communities MUST be supported as initial sources (all
 
 ### Technical Dependencies
 
-- **npm package**: `snoowrap` or `reddit` - Node.js Reddit API wrapper library (or raw fetch with OAuth2 implementation)
-- **npm package**: `franc` or `lingua` - Language detection library for filtering non-Dutch posts (optional, can use keyword-based approach)
+- **npm package**: `snoowrap@^1.23.0` - Node.js Reddit API wrapper with built-in OAuth2 token management, automatic rate limit handling, and comprehensive Reddit API coverage
 - **Environment variables**: REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET (stored in Netlify environment configuration)
 
-## Constraints *(include if applicable)*
+## Constraints _(include if applicable)_
 
 ### Technical Constraints
 
-- **Rate Limiting**: Reddit API allows 60 requests per minute for OAuth apps; system must track and respect this limit to avoid temporary bans
+- **Rate Limiting**: Reddit API allows 60 requests per minute for OAuth apps; snoowrap library handles rate limiting automatically but system should monitor for rate limit warnings
 - **API Response Time**: Reddit API response times can be slow (2-5 seconds per request); parallel requests and caching strategies needed to meet collection time targets
 - **Content Length**: Reddit posts can be very long (>10,000 characters); truncate to 2000 characters for sentiment analysis to match RSS article handling
-- **Authentication Persistence**: OAuth2 access tokens expire after 1 hour; system must refresh tokens automatically before expiration
+- **Authentication Persistence**: OAuth2 access tokens expire after 1 hour; snoowrap library handles automatic token refresh
 - **Subreddit Rules**: Some subreddits have strict API usage rules; respect robots.txt and subreddit-specific guidelines to avoid bans
 
 ### Business Constraints
@@ -205,7 +214,7 @@ The following Dutch Reddit communities MUST be supported as initial sources (all
 - **Error Budget**: Reddit failures must not exceed 10% of collection cycles over 7-day period (aligned with existing 90% uptime target)
 - **Storage Growth**: Reddit posts increase data volume by estimated 10-30%; ensure Netlify Blob storage and 7-day retention can accommodate growth
 
-## Out of Scope *(include if applicable)*
+## Out of Scope _(include if applicable)_
 
 ### Explicitly Excluded
 
@@ -232,6 +241,7 @@ The following Dutch Reddit communities MUST be supported as initial sources (all
 
 ---
 
-**Next Steps**: 
+**Next Steps**:
+
 1. Validate specification quality using checklist
 2. Proceed to `/speckit.clarify` for implementation planning once specification approved

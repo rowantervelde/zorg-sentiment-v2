@@ -1,0 +1,212 @@
+openapi: 3.0.3
+info:
+  title: Sentiment Sources API - Reddit Extension
+  version: 1.1.0
+  description: |
+    Extension to the Sentiment Sources API to include Reddit-specific engagement statistics.
+    
+    **Feature**: 003-reddit-integration  
+    **Base API**: Extends existing `/api/sentiment/sources` endpoint from Feature 002
+    
+    This contract defines the new `engagementStats` field added to `SourceContribution` objects
+    when the source type is `SOCIAL_REDDIT`.
+
+servers:
+  - url: https://your-site.netlify.app/api
+    description: Production API
+  - url: http://localhost:3000/api
+    description: Local development
+
+paths:
+  /sentiment/sources:
+    get:
+      summary: Get sentiment source contributions
+      description: |
+        Returns contribution metrics for all configured sentiment sources (RSS and Reddit).
+        Reddit sources now include additional `engagementStats` field with upvote and comment metrics.
+      operationId: getSources
+      tags:
+        - Sentiment
+      responses:
+        '200':
+          description: Successfully retrieved source contributions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourcesResponse'
+              examples:
+                withReddit:
+                  summary: Response with Reddit sources
+                  value:
+                    sources:
+                      - sourceId: "nu-nl"
+                        sourceName: "NU.nl"
+                        sourceType: "RSS_NEWS"
+                        articleCount: 12
+                        percentage: 35.3
+                        lastFetchTime: "2025-11-02T12:00:00Z"
+                        isHealthy: true
+                      - sourceId: "reddit-thenetherlands"
+                        sourceName: "r/thenetherlands"
+                        sourceType: "SOCIAL_REDDIT"
+                        articleCount: 8
+                        percentage: 23.5
+                        lastFetchTime: "2025-11-02T12:00:00Z"
+                        isHealthy: true
+                        engagementStats:
+                          totalUpvotes: 320
+                          totalComments: 96
+                          avgUpvotes: 40
+                          avgComments: 12
+                          avgUpvoteRatio: 0.88
+                      - sourceId: "reddit-dutchpersonalfinance"
+                        sourceName: "r/DutchPersonalFinance"
+                        sourceType: "SOCIAL_REDDIT"
+                        articleCount: 5
+                        percentage: 14.7
+                        lastFetchTime: "2025-11-02T12:00:00Z"
+                        isHealthy: true
+                        engagementStats:
+                          totalUpvotes: 175
+                          totalComments: 45
+                          avgUpvotes: 35
+                          avgComments: 9
+                          avgUpvoteRatio: 0.92
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    SourcesResponse:
+      type: object
+      required:
+        - sources
+      properties:
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceContribution'
+          description: List of all configured sentiment sources with their contribution metrics
+
+    SourceContribution:
+      type: object
+      required:
+        - sourceId
+        - sourceName
+        - sourceType
+        - articleCount
+        - percentage
+        - isHealthy
+      properties:
+        sourceId:
+          type: string
+          description: Unique identifier for the source (e.g., "reddit-thenetherlands", "nu-nl")
+          example: "reddit-thenetherlands"
+        sourceName:
+          type: string
+          description: Display name of the source
+          example: "r/thenetherlands"
+        sourceType:
+          type: string
+          enum:
+            - RSS_NEWS
+            - SOCIAL_REDDIT
+          description: Type of sentiment source
+          example: "SOCIAL_REDDIT"
+        articleCount:
+          type: integer
+          minimum: 0
+          description: Number of articles collected from this source in the current dataset
+          example: 8
+        percentage:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Percentage contribution of this source to total articles
+          example: 23.5
+        lastFetchTime:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp of the last successful data fetch (ISO 8601)
+          example: "2025-11-02T12:00:00Z"
+        isHealthy:
+          type: boolean
+          description: Whether the source is currently operational
+          example: true
+        errorMessage:
+          type: string
+          nullable: true
+          description: Recent error message if source is unhealthy
+          example: "403 Forbidden: Subreddit is private"
+        engagementStats:
+          $ref: '#/components/schemas/EngagementStats'
+          nullable: true
+          description: |
+            Reddit-specific engagement metrics. Only present when `sourceType` is `SOCIAL_REDDIT`.
+            Null or omitted for RSS sources.
+
+    EngagementStats:
+      type: object
+      required:
+        - totalUpvotes
+        - totalComments
+        - avgUpvotes
+        - avgComments
+        - avgUpvoteRatio
+      properties:
+        totalUpvotes:
+          type: integer
+          minimum: 0
+          description: Sum of upvotes (score) across all Reddit posts from this source
+          example: 320
+        totalComments:
+          type: integer
+          minimum: 0
+          description: Sum of comment counts across all Reddit posts from this source
+          example: 96
+        avgUpvotes:
+          type: number
+          format: float
+          minimum: 0
+          description: Average upvotes per Reddit post from this source
+          example: 40.0
+        avgComments:
+          type: number
+          format: float
+          minimum: 0
+          description: Average comment count per Reddit post from this source
+          example: 12.0
+        avgUpvoteRatio:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: |
+            Average upvote ratio (upvotes / total votes) across all posts. 
+            Range: 0.0 (all downvotes) to 1.0 (all upvotes). 
+            Higher values indicate more positive community reception.
+          example: 0.88
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Failed to fetch source contributions"
+        details:
+          type: string
+          description: Additional error details
+          example: "Database connection timeout"
+
+tags:
+  - name: Sentiment
+    description: Sentiment analysis and source contribution endpoints
