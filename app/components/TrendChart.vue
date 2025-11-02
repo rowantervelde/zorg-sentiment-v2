@@ -182,6 +182,13 @@ const significantChanges = computed(() => {
   return detectSignificantChanges(props.trend.dataPoints, 20);
 });
 
+// Reversed data points for chronological display (oldest to newest)
+// Data is stored newest-first, but charts should show chronological order
+const reversedDataPoints = computed(() => {
+  if (!hasData.value || !props.trend) return [];
+  return [...props.trend.dataPoints].reverse();
+});
+
 // Chart data
 const chartData = computed<ChartData<'line'>>(() => {
   if (!hasData.value || !props.trend) {
@@ -191,7 +198,8 @@ const chartData = computed<ChartData<'line'>>(() => {
     };
   }
 
-  const dataPoints = props.trend.dataPoints;
+  // Use reversed data points for chronological display
+  const dataPoints = reversedDataPoints.value;
 
   // Generate labels (dates/times)
   const labels = dataPoints.map((dp) => {
@@ -278,8 +286,9 @@ const chartOptions = computed<ChartOptions<'line'>>(() => {
             if (!firstContext) return '';
             
             const index = firstContext.dataIndex;
-            if (props.trend && props.trend.dataPoints[index]) {
-              const dp = props.trend.dataPoints[index];
+            const dataPoints = reversedDataPoints.value;
+            if (dataPoints[index]) {
+              const dp = dataPoints[index];
               const date = new Date(dp.timestamp);
               return date.toLocaleString('nl-NL', {
                 weekday: 'short',
@@ -296,9 +305,10 @@ const chartOptions = computed<ChartOptions<'line'>>(() => {
             if (value === null) return '';
             
             const index = context.dataIndex;
+            const dataPoints = reversedDataPoints.value;
             
-            if (props.trend && props.trend.dataPoints[index]) {
-              const dp = props.trend.dataPoints[index];
+            if (dataPoints[index]) {
+              const dp = dataPoints[index];
               const mood = dp.moodClassification;
               const moodEmoji = mood === 'positive' ? '😊' : mood === 'negative' ? '😟' : '😐';
               
