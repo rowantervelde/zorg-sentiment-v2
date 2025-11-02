@@ -177,9 +177,11 @@ const hasGaps = computed(() => {
   return gaps.length > 0;
 });
 
+// Use reversed data points for significant change detection
+// This ensures indices match the chart display order
 const significantChanges = computed(() => {
-  if (!hasData.value || !props.trend) return [];
-  return detectSignificantChanges(props.trend.dataPoints, 20);
+  if (!hasData.value) return [];
+  return detectSignificantChanges(reversedDataPoints.value, 20);
 });
 
 // Reversed data points for chronological display (oldest to newest)
