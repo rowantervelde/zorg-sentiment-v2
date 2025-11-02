@@ -288,9 +288,9 @@ const chartOptions = computed<ChartOptions<'line'>>(() => {
             if (!firstContext) return '';
             
             const index = firstContext.dataIndex;
-            const dataPoints = reversedDataPoints.value;
-            if (dataPoints[index]) {
-              const dp = dataPoints[index];
+            const reversedPoints = reversedDataPoints.value;
+            if (reversedPoints[index]) {
+              const dp = reversedPoints[index];
               const date = new Date(dp.timestamp);
               return date.toLocaleString('nl-NL', {
                 weekday: 'short',
@@ -307,10 +307,10 @@ const chartOptions = computed<ChartOptions<'line'>>(() => {
             if (value === null) return '';
             
             const index = context.dataIndex;
-            const dataPoints = reversedDataPoints.value;
+            const reversedPoints = reversedDataPoints.value;
             
-            if (dataPoints[index]) {
-              const dp = dataPoints[index];
+            if (reversedPoints[index]) {
+              const dp = reversedPoints[index];
               const mood = dp.moodClassification;
               const moodEmoji = mood === 'positive' ? '😊' : mood === 'negative' ? '😟' : '😐';
               
