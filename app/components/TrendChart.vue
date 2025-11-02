@@ -187,7 +187,7 @@ const reversedDataPoints = computed(() => {
 // Use reversed data points for significant change detection
 // This ensures indices match the chart display order
 const significantChanges = computed(() => {
-  if (!hasData.value) return [];
+  if (!hasData.value || !props.trend) return [];
   return detectSignificantChanges(reversedDataPoints.value, 20);
 });
 
