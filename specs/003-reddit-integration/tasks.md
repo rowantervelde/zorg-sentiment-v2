@@ -24,9 +24,9 @@
 
 **Purpose**: Install dependencies and create configuration files needed for Reddit integration
 
-- [ ] T001 Install snoowrap package via npm: `npm install snoowrap@^1.23.0`
-- [ ] T002 Create Reddit keyword configuration file in `server/config/reddit-keywords.json`
-- [ ] T003 Add Reddit environment variables to `.env.example` (REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT)
+- [x] T001 Install snoowrap package via npm: `npm install snoowrap@^1.23.0`
+- [x] T002 Create Reddit keyword configuration file in `server/config/reddit-keywords.json`
+- [x] T003 Add Reddit environment variables to `.env.example` (REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT)
 
 ---
 
@@ -36,9 +36,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Add `SOCIAL_REDDIT` enum value to `SourceType` in `server/types/source.ts`
-- [ ] T005 Create `RedditSourceConfig` interface in `server/types/sourceConfiguration.ts`
-- [ ] T006 Add `EngagementStats` interface to `server/api/sentiment/sources.get.ts` (type definitions only)
+- [x] T004 Add `SOCIAL_REDDIT` enum value to `SourceType` in `server/types/source.ts`
+- [x] T005 Create `RedditSourceConfig` interface in `server/types/sourceConfiguration.ts`
+- [x] T006 Add `EngagementStats` interface to `server/api/sentiment/sources.get.ts` (type definitions only)
 
 **Checkpoint**: Type system ready - user story implementation can now begin in parallel
 
@@ -52,19 +52,19 @@
 
 ### Implementation for User Story 1
 
-- [ ] T007 [P] [US1] Implement snoowrap client initialization in `server/utils/redditAdapter.ts` (OAuth2 client credentials)
-- [ ] T008 [P] [US1] Implement `validateConfig()` method in `server/utils/redditAdapter.ts`
-- [ ] T009 [US1] Implement keyword filtering function in `server/utils/redditAdapter.ts` (uses reddit-keywords.json)
-- [ ] T010 [US1] Implement quality filtering function in `server/utils/redditAdapter.ts` (score >= 5 OR comments >= 3)
-- [ ] T011 [US1] Implement comment fetching logic in `server/utils/redditAdapter.ts` (top 5 comments by score, min 50 chars)
-- [ ] T012 [US1] Implement content normalization for text posts in `server/utils/redditAdapter.ts` (selftext + comments)
-- [ ] T013 [US1] Implement content normalization for link posts in `server/utils/redditAdapter.ts` (title + comments)
-- [ ] T014 [US1] Implement Reddit post to Article mapping in `server/utils/redditAdapter.ts` (title, content, author, link, pubDate, sourceId, engagementMetrics)
-- [ ] T015 [US1] Implement main `fetchArticles()` method in `server/utils/redditAdapter.ts` (orchestrates fetching, filtering, normalization)
-- [ ] T016 [US1] Implement error handling with exponential backoff in `server/utils/redditAdapter.ts` (1s-2s-4s for 500/503, permanent fail for 403/404)
-- [ ] T017 [US1] Implement `getAdapterState()` method in `server/utils/redditAdapter.ts` (tracks lastFetchTime, errorCount, isHealthy)
-- [ ] T018 [US1] Add 3 Reddit source configurations to `server/config/sources.json` (r/DutchPersonalFinance, r/thenetherlands, r/geldzaken)
-- [ ] T019 [US1] Update sourceOrchestrator to handle RedditAdapter errors gracefully in `server/utils/sourceOrchestrator.ts` (if needed - verify existing error handling)
+- [x] T007 [P] [US1] Implement snoowrap client initialization in `server/utils/redditAdapter.ts` (OAuth2 client credentials)
+- [x] T008 [P] [US1] Implement `validateConfig()` method in `server/utils/redditAdapter.ts`
+- [x] T009 [US1] Implement keyword filtering function in `server/utils/redditAdapter.ts` (uses reddit-keywords.json)
+- [x] T010 [US1] Implement quality filtering function in `server/utils/redditAdapter.ts` (score >= 5 OR comments >= 3)
+- [x] T011 [US1] Implement comment fetching logic in `server/utils/redditAdapter.ts` (top 5 comments by score, min 50 chars)
+- [x] T012 [US1] Implement content normalization for text posts in `server/utils/redditAdapter.ts` (selftext + comments)
+- [x] T013 [US1] Implement content normalization for link posts in `server/utils/redditAdapter.ts` (title + comments)
+- [x] T014 [US1] Implement Reddit post to Article mapping in `server/utils/redditAdapter.ts` (title, content, author, link, pubDate, sourceId, engagementMetrics)
+- [x] T015 [US1] Implement main `fetchArticles()` method in `server/utils/redditAdapter.ts` (orchestrates fetching, filtering, normalization)
+- [x] T016 [US1] Implement error handling with exponential backoff in `server/utils/redditAdapter.ts` (1s-2s-4s for 500/503, permanent fail for 403/404)
+- [x] T017 [US1] Implement `getAdapterState()` method in `server/utils/redditAdapter.ts` (tracks lastFetchTime, errorCount, isHealthy)
+- [x] T018 [US1] Add 3 Reddit source configurations to `server/config/sources.json` (r/DutchPersonalFinance, r/thenetherlands, r/geldzaken)
+- [x] T019 [US1] Update sourceOrchestrator to handle RedditAdapter errors gracefully in `server/utils/sourceOrchestrator.ts` (if needed - verify existing error handling)
 
 **Checkpoint**: At this point, Reddit posts should be collected hourly and appear in sentiment calculations
 

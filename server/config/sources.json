@@ -56,6 +56,66 @@
       "maxArticles": 30,
       "timeout": 10000,
       "priority": 1
+    },
+    {
+      "id": "reddit-dutchpersonalfinance",
+      "name": "r/DutchPersonalFinance",
+      "type": "SOCIAL_REDDIT",
+      "url": "https://www.reddit.com/r/DutchPersonalFinance/",
+      "category": "general",
+      "isActive": true,
+      "maxArticles": 20,
+      "timeout": 10000,
+      "priority": 1,
+      "redditConfig": {
+        "subreddit": "DutchPersonalFinance",
+        "timeWindow": "day",
+        "minScore": 1,
+        "minComments": 0,
+        "maxPosts": 20,
+        "includeComments": true,
+        "topCommentsCount": 5
+      }
+    },
+    {
+      "id": "reddit-thenetherlands",
+      "name": "r/thenetherlands",
+      "type": "SOCIAL_REDDIT",
+      "url": "https://www.reddit.com/r/thenetherlands/",
+      "category": "general",
+      "isActive": true,
+      "maxArticles": 20,
+      "timeout": 10000,
+      "priority": 1,
+      "redditConfig": {
+        "subreddit": "thenetherlands",
+        "timeWindow": "day",
+        "minScore": 1,
+        "minComments": 0,
+        "maxPosts": 20,
+        "includeComments": true,
+        "topCommentsCount": 5
+      }
+    },
+    {
+      "id": "reddit-geldzaken",
+      "name": "r/geldzaken",
+      "type": "SOCIAL_REDDIT",
+      "url": "https://www.reddit.com/r/geldzaken/",
+      "category": "general",
+      "isActive": true,
+      "maxArticles": 20,
+      "timeout": 10000,
+      "priority": 1,
+      "redditConfig": {
+        "subreddit": "geldzaken",
+        "timeWindow": "day",
+        "minScore": 1,
+        "minComments": 0,
+        "maxPosts": 20,
+        "includeComments": true,
+        "topCommentsCount": 5
+      }
     }
   ]
 }

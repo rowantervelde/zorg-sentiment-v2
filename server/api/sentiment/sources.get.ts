@@ -27,6 +27,22 @@ interface SourceMetricsData {
   inactiveMarkedAt?: string;
 }
 
+/**
+ * Reddit-specific engagement statistics (Feature 003-reddit-integration)
+ */
+interface EngagementStats {
+  /** Sum of upvotes across all Reddit posts */
+  totalUpvotes: number;
+  /** Sum of comments across all Reddit posts */
+  totalComments: number;
+  /** Average upvotes per Reddit post */
+  avgUpvotes: number;
+  /** Average comments per Reddit post */
+  avgComments: number;
+  /** Average upvote ratio (0.0-1.0) */
+  avgUpvoteRatio: number;
+}
+
 export default defineEventHandler(async (event): Promise<SourceContributionResponse> => {
   const requestId = event.context.requestId || Math.random().toString(36).substring(7);
 
@@ -212,7 +228,17 @@ async function calculateSourceMetrics(
     const isInactive = metrics.consecutiveFailures >= 72;
 
     return {
-      ...contribution,
+      // Include all original contribution fields
+      sourceId: contribution.sourceId,
+      sourceName: contribution.sourceName,
+      sourceType: contribution.sourceType,
+      articlesCollected: contribution.articlesCollected,
+      sentimentBreakdown: contribution.sentimentBreakdown,
+      fetchedAt: contribution.fetchedAt,
+      fetchDurationMs: contribution.fetchDurationMs,
+      status: contribution.status,
+      error: contribution.error,
+      // Add new fields for API response
       category: 'general', // Default category (can be enhanced later)
       articlePercentage: (contribution.articlesCollected / totalArticles) * 100,
       reliability: {

@@ -42,4 +42,33 @@ export interface SourceConfiguration {
     lastSuccessAt?: string
     lastFailureAt?: string
   }
+  
+  /** Reddit-specific configuration (Feature 003) */
+  redditConfig?: RedditSourceConfig
+}
+
+/**
+ * Reddit-specific source configuration (Feature 003-reddit-integration)
+ */
+export interface RedditSourceConfig {
+  /** Subreddit name without r/ prefix (e.g., "thenetherlands") */
+  subreddit: string
+  
+  /** Time window for fetching posts: "day" | "week" | "month" */
+  timeWindow: 'day' | 'week' | 'month'
+  
+  /** Minimum upvote score threshold (default: 5) */
+  minScore: number
+  
+  /** Minimum comment count threshold (default: 3) */
+  minComments: number
+  
+  /** Maximum posts to fetch before filtering (default: 20) */
+  maxPosts: number
+  
+  /** Whether to include comments in article content (default: true) */
+  includeComments: boolean
+  
+  /** Number of top comments to include (default: 5) */
+  topCommentsCount: number
 }
