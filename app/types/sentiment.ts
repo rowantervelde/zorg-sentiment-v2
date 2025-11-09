@@ -40,6 +40,15 @@ export interface SourceContribution {
   
   /** Error message if status='failed' */
   error?: string
+  
+  /** T020-T021: Reddit-specific engagement statistics */
+  engagementStats?: {
+    totalUpvotes: number
+    totalComments: number
+    avgUpvotes: number
+    avgComments: number
+    avgUpvoteRatio: number
+  }
 }
 
 /**

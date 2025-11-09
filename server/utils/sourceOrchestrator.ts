@@ -131,6 +131,47 @@ export async function fetchFromAllSources(
 }
 
 /**
+ * T020: Calculate engagement statistics for Reddit articles
+ * Aggregates upvotes, comments, and upvote ratios from Reddit posts
+ */
+function calculateEngagementStats(articles: Article[]): { 
+  totalUpvotes: number
+  totalComments: number
+  avgUpvotes: number
+  avgComments: number
+  avgUpvoteRatio: number
+} | undefined {
+  // Filter for Reddit articles with engagement metrics
+  const redditArticles = articles.filter(article => article.engagementMetrics)
+
+  if (redditArticles.length === 0) {
+    return undefined
+  }
+
+  // Extract engagement metrics
+  const upvotes = redditArticles.map(a => a.engagementMetrics?.likes || 0)
+  const comments = redditArticles.map(a => a.engagementMetrics?.comments || 0)
+  
+  // Extract upvote ratios - use direct upvoteRatio field
+  const upvoteRatios = redditArticles
+    .filter(a => a.engagementMetrics?.upvoteRatio !== undefined)
+    .map(a => a.engagementMetrics!.upvoteRatio!)
+
+  const totalUpvotes = upvotes.reduce((sum, val) => sum + val, 0)
+  const totalComments = comments.reduce((sum, val) => sum + val, 0)
+
+  return {
+    totalUpvotes,
+    totalComments,
+    avgUpvotes: Math.round(totalUpvotes / upvotes.length) || 0,
+    avgComments: Math.round(totalComments / comments.length) || 0,
+    avgUpvoteRatio: upvoteRatios.length > 0 
+      ? Math.round((upvoteRatios.reduce((sum, val) => sum + val, 0) / upvoteRatios.length) * 100) / 100 
+      : 0,
+  }
+}
+
+/**
  * Fetch articles from a single source with its adapter
  */
 async function fetchFromSource(
@@ -173,6 +214,10 @@ async function fetchFromSource(
     fetchedAt: new Date().toISOString(),
     fetchDurationMs,
     status: articles.length > 0 ? 'success' : 'partial',
+    // T020-T021: Calculate engagement stats for Reddit sources
+    engagementStats: source.type === SourceType.SOCIAL_REDDIT 
+      ? calculateEngagementStats(articles)
+      : undefined,
   }
   
   return { articles, contribution }

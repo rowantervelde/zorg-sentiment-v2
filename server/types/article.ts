@@ -30,5 +30,6 @@ export interface Article {
     likes?: number
     shares?: number
     comments?: number
+    upvoteRatio?: number // T020: Direct upvote ratio for Reddit (0.0-1.0)
   }
 }

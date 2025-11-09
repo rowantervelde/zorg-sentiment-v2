@@ -269,6 +269,30 @@ export class RedditAdapter implements SourceAdapter {
   }
 
   /**
+   * T027: Upvote ratio filtering - exclude low-quality controversial posts
+   */
+  private meetsUpvoteRatioThreshold(post: RedditPost, config: RedditSourceConfig): boolean {
+    const minRatio = config.minUpvoteRatio ?? 0.4 // Default 0.4 (40%)
+    const upvoteRatio = post.data.upvote_ratio || 0
+    return upvoteRatio >= minRatio
+  }
+
+  /**
+   * T029: Dutch language detection via keyword presence
+   */
+  private isDutchContent(post: RedditPost, keywords: KeywordConfig): boolean {
+    const text = `${post.data.title} ${post.data.selftext || ''}`.toLowerCase()
+    
+    // Check if text contains at least one Dutch keyword from any category
+    const hasDutchKeyword = 
+      keywords.primary.some((kw) => text.includes(kw.toLowerCase())) ||
+      keywords.secondary.some((kw) => text.includes(kw.toLowerCase())) ||
+      keywords.insurers.some((kw) => text.includes(kw.toLowerCase()))
+    
+    return hasDutchKeyword
+  }
+
+  /**
    * T011: Fetch top comments for a post
    */
   private async fetchTopComments(postId: string, subreddit: string, count: number): Promise<RedditComment[]> {
@@ -337,14 +361,47 @@ export class RedditAdapter implements SourceAdapter {
 
       console.log(`[RedditAdapter] Fetched ${posts.length} posts from r/${subreddit}`)
 
-      // Filter posts by keywords and quality
+      // T030: Track rejection reasons for filtering validation
+      const rejectionStats = {
+        notRelevant: 0,
+        lowQuality: 0,
+        lowUpvoteRatio: 0,
+        notDutch: 0,
+        total: 0,
+      }
+
+      // Filter posts by keywords, quality, upvote ratio, and language
       const relevantPosts = posts.filter((post: RedditPost) => {
         const isRelevant = this.isRelevantPost(post, keywords)
         const meetsQuality = this.meetsQualityThreshold(post, redditConfig)
-        return isRelevant && meetsQuality
+        const meetsUpvoteRatio = this.meetsUpvoteRatioThreshold(post, redditConfig)
+        const isDutch = this.isDutchContent(post, keywords)
+
+        // T030: Log rejection reasons
+        if (!isRelevant) {
+          rejectionStats.notRelevant++
+          return false
+        }
+        if (!meetsQuality) {
+          rejectionStats.lowQuality++
+          return false
+        }
+        if (!meetsUpvoteRatio) {
+          rejectionStats.lowUpvoteRatio++
+          return false
+        }
+        if (!isDutch) {
+          rejectionStats.notDutch++
+          return false
+        }
+
+        return true
       })
 
+      rejectionStats.total = posts.length - relevantPosts.length
+
       console.log(`[RedditAdapter] ${relevantPosts.length} posts passed filtering`)
+      console.log(`[RedditAdapter] Rejection breakdown: notRelevant=${rejectionStats.notRelevant}, lowQuality=${rejectionStats.lowQuality}, lowUpvoteRatio=${rejectionStats.lowUpvoteRatio}, notDutch=${rejectionStats.notDutch}`)
 
       // Convert posts to articles
       const articles: Article[] = []
@@ -424,7 +481,7 @@ export class RedditAdapter implements SourceAdapter {
   /**
    * T012-T013: Normalize Reddit post content (text posts and link posts)
    */
-  private async normalizeContent(post: RedditPost, comments: RedditComment[]): Promise<string> {
+  private async normalizeContent(post: RedditPost, comments: RedditComment[], maxLength?: number): Promise<string> {
     let content = ''
 
     // Handle different post types
@@ -445,6 +502,12 @@ export class RedditAdapter implements SourceAdapter {
       content += comments.map((comment) => comment.data.body).join('\n\n')
     }
 
+    // T028: Truncate content to max length (default 2000 chars, consistent with RSS)
+    const truncateAt = maxLength ?? 2000
+    if (content.length > truncateAt) {
+      content = content.substring(0, truncateAt) + '...'
+    }
+
     return content
   }
 
@@ -452,7 +515,9 @@ export class RedditAdapter implements SourceAdapter {
    * T014: Map Reddit post to Article interface
    */
   private async mapToArticle(post: RedditPost, config: SourceConfiguration, comments: RedditComment[]): Promise<Article> {
-    const content = await this.normalizeContent(post, comments)
+    // T028: Use configured max content length or default 2000
+    const maxContentLength = config.redditConfig?.maxContentLength ?? 2000
+    const content = await this.normalizeContent(post, comments, maxContentLength)
 
     // Create deduplication hash
     const normalizedText = `${post.data.title} ${content}`.toLowerCase().trim()
@@ -472,6 +537,7 @@ export class RedditAdapter implements SourceAdapter {
         likes: post.data.score || 0,
         comments: post.data.num_comments || 0,
         shares: post.data.upvote_ratio ? Math.round((post.data.score || 0) * (post.data.upvote_ratio || 0)) : undefined,
+        upvoteRatio: post.data.upvote_ratio || undefined, // T020: Store raw upvote ratio
       },
     }
 

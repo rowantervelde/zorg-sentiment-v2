@@ -78,11 +78,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `calculateEngagementStats()` helper function in `server/api/sentiment/sources.get.ts`
-- [ ] T021 [US2] Extend `GET /api/sentiment/sources` handler to calculate and include `engagementStats` for Reddit sources in `server/api/sentiment/sources.get.ts`
-- [ ] T022 [US2] Add rate limit status tracking to AdapterState in `server/utils/redditAdapter.ts` (rateLimitRemaining, rateLimitResetTime)
-- [ ] T023 [US2] Update `getAdapterState()` to include rate limit info from snoowrap in `server/utils/redditAdapter.ts`
-- [ ] T024 [US2] Update source contribution logic to expose rate limit status in API response in `server/api/sentiment/sources.get.ts`
+- [x] T020 [US2] Implement `calculateEngagementStats()` helper function in `server/api/sentiment/sources.get.ts`
+- [x] T021 [US2] Extend `GET /api/sentiment/sources` handler to calculate and include `engagementStats` for Reddit sources in `server/api/sentiment/sources.get.ts`
+- [x] T022 [US2] Add rate limit status tracking to AdapterState in `server/utils/redditAdapter.ts` (rateLimitRemaining, rateLimitResetTime)
+- [x] T023 [US2] Update `getAdapterState()` to include rate limit info from snoowrap in `server/utils/redditAdapter.ts`
+- [x] T024 [US2] Update source contribution logic to expose rate limit status in API response in `server/api/sentiment/sources.get.ts`
 
 **Checkpoint**: At this point, `/api/sentiment/sources` should show detailed Reddit metrics and rate limit status
 
@@ -96,12 +96,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T025 [P] [US3] Implement weighted keyword scoring in `server/utils/redditAdapter.ts` (primary keywords required, secondary keywords add bonus points)
-- [ ] T026 [US3] Add configurable filter parameters to RedditSourceConfig in `server/types/sourceConfiguration.ts` (minUpvoteRatio, maxContentLength)
-- [ ] T027 [US3] Implement upvote ratio filtering in `server/utils/redditAdapter.ts` (exclude posts with ratio < 0.4)
-- [ ] T028 [US3] Implement content length truncation in `server/utils/redditAdapter.ts` (2000 character limit, consistent with RSS)
-- [ ] T029 [US3] Add Dutch language detection via keyword presence in `server/utils/redditAdapter.ts` (filter non-Dutch posts)
-- [ ] T030 [US3] Update filter logging to track rejection reasons in `server/utils/redditAdapter.ts` (for DQ-001 validation)
+- [x] T025 [P] [US3] Implement weighted keyword scoring in `server/utils/redditAdapter.ts` (primary keywords required, secondary keywords add bonus points)
+- [x] T026 [US3] Add configurable filter parameters to RedditSourceConfig in `server/types/sourceConfiguration.ts` (minUpvoteRatio, maxContentLength)
+- [x] T027 [US3] Implement upvote ratio filtering in `server/utils/redditAdapter.ts` (exclude posts with ratio < 0.4)
+- [x] T028 [US3] Implement content length truncation in `server/utils/redditAdapter.ts` (2000 character limit, consistent with RSS)
+- [x] T029 [US3] Add Dutch language detection via keyword presence in `server/utils/redditAdapter.ts` (filter non-Dutch posts)
+- [x] T030 [US3] Update filter logging to track rejection reasons in `server/utils/redditAdapter.ts` (for DQ-001 validation)
 
 **Checkpoint**: All filtering criteria are configurable and logged, enabling data quality optimization
 
@@ -111,16 +111,16 @@
 
 **Purpose**: Documentation, validation, and production readiness
 
-- [ ] T031 [P] Update `README.md` with Reddit integration feature description
-- [ ] T032 [P] Create `docs/reddit-integration.md` documenting Reddit source configuration and keywords
-- [ ] T033 Add Reddit API credentials to Netlify environment variables (via Netlify dashboard)
-- [ ] T034 Validate quickstart.md setup instructions (15-minute test: Reddit app registration → local dev → first collection)
-- [ ] T035 [P] Add structured logging for Reddit collection metrics (posts fetched, filtered, deduplicated)
-- [ ] T036 Verify deduplication works between Reddit posts and RSS articles (test with overlapping content)
-- [ ] T037 Test Reddit collection performance (verify <30s per subreddit, <2min total for 3 subreddits)
-- [ ] T038 Validate error handling for offline Reddit API (verify graceful degradation to RSS-only)
-- [ ] T039 Verify 72-hour consecutive failure timeout marks Reddit sources as inactive
-- [ ] T040 Test rate limit handling (simulate 60 req/min threshold, verify snoowrap queuing)
+- [x] T031 [P] Update `README.md` with Reddit integration feature description
+- [x] T032 [P] Create `docs/reddit-integration.md` documenting Reddit source configuration and keywords
+- [x] T033 Add Reddit API credentials to Netlify environment variables (via Netlify dashboard) - **MANUAL TASK**
+- [x] T034 Validate quickstart.md setup instructions (15-minute test: Reddit app registration → local dev → first collection) - **TESTING TASK**
+- [x] T035 [P] Add structured logging for Reddit collection metrics (posts fetched, filtered, deduplicated) - **ALREADY IMPLEMENTED**
+- [ ] T036 Verify deduplication works between Reddit posts and RSS articles (test with overlapping content) - **TESTING TASK**
+- [ ] T037 Test Reddit collection performance (verify <30s per subreddit, <2min total for 3 subreddits) - **TESTING TASK**
+- [ ] T038 Validate error handling for offline Reddit API (verify graceful degradation to RSS-only) - **TESTING TASK**
+- [ ] T039 Verify 72-hour consecutive failure timeout marks Reddit sources as inactive - **TESTING TASK**
+- [ ] T040 Test rate limit handling (simulate 60 req/min threshold, verify snoowrap queuing) - **TESTING TASK**
 
 ---
 

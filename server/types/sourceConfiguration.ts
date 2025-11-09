@@ -71,4 +71,10 @@ export interface RedditSourceConfig {
   
   /** Number of top comments to include (default: 5) */
   topCommentsCount: number
+  
+  /** T026: Minimum upvote ratio threshold (default: 0.4, range: 0.0-1.0) */
+  minUpvoteRatio?: number
+  
+  /** T026: Maximum content length in characters (default: 2000) */
+  maxContentLength?: number
 }
