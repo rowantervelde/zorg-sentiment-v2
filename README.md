@@ -84,6 +84,14 @@ Visit `http://localhost:8888` to test with Netlify functions.
 - [Extending Sources Guide](./docs/extending-sources.md) - How to add new data source adapters
 - [Source API Contract](./specs/002-multi-source-sentiment/contracts/sources-api.yaml) - Source metrics API specification
 
+### Feature 003: Reddit Integration
+
+- [Feature Specification](./specs/003-reddit-integration/spec.md) - Reddit data source integration requirements
+- [Implementation Plan](./specs/003-reddit-integration/plan.md) - Reddit API integration with snoowrap
+- [Data Model](./specs/003-reddit-integration/data-model.md) - Reddit-specific article schema and engagement metrics
+- [Reddit Integration Guide](./docs/reddit-integration.md) - Configuration and keyword setup
+- [Quickstart Guide](./specs/003-reddit-integration/quickstart.md) - Reddit API credentials and local testing
+
 ## 🛠️ Tech Stack
 
 - **Frontend**: Nuxt 4.1.3, Vue 3.5, Nuxt UI v4.1
@@ -134,7 +142,10 @@ The system currently collects sentiment data from multiple Dutch news sources:
 ### Planned Sources (Future Implementation)
 
 - **Twitter/X** - Social media sentiment via TwitterAdapter (stub implemented)
-- **Reddit** - Community discussions via RedditAdapter (stub implemented)
+
+### Active Social Media Sources (Feature 003)
+
+- **Reddit** - Community discussions from Dutch subreddits (r/thenetherlands) with configurable keyword filtering
 
 The multi-source architecture uses an **adapter pattern** allowing new sources to be added without modifying core sentiment logic. See [Extending Sources Guide](./docs/extending-sources.md) for implementation details.
 
