@@ -8,19 +8,19 @@
 netlify dev
 ```
 
-### Step 2: Generate Test Data via HTTP
+### Step 2: Generate Test Data
 
-Open your browser or use curl:
+Use Netlify CLI to invoke the function:
 
 ```bash
 # Generate 6 hours of test data (recommended for quick testing)
-http://localhost:8888/api/generate-test-data?hours=6
-
-# Or use curl in PowerShell:
-curl http://localhost:8888/api/generate-test-data?hours=6
+netlify functions:invoke generate-test-data --querystring "hours=6"
 
 # For 24 hours of data:
-http://localhost:8888/api/generate-test-data?hours=24
+netlify functions:invoke generate-test-data --querystring "hours=24"
+
+# Alternative: Direct HTTP call
+curl http://localhost:8888/api/generate-test-data?hours=6
 ```
 
 ### Step 3: View Your Dashboard
@@ -54,10 +54,10 @@ Instead of waiting 7 days for trend data, configure a shorter window for **local
 
    > **Note**: Use `.env` for local testing. For production deployment, configure this via Netlify's UI under Site settings > Environment variables (if needed).
 
-3. Generate matching test data via HTTP:
+3. Generate matching test data:
 
    ```bash
-   http://localhost:8888/api/generate-test-data?hours=6
+   netlify functions:invoke generate-test-data --querystring "hours=6"
    ```
 
 4. Refresh your dashboard at http://localhost:8888
@@ -156,7 +156,7 @@ Once deployed to Netlify:
 ## How It Works
 
 1. **Netlify Function**: `netlify/functions/generate-test-data.mts` creates `SentimentDataPoint` objects and saves them to Netlify Blobs
-2. **HTTP Access**: Call the function via `/.netlify/functions/generate-test-data?hours=N` while dev server is running
+2. **Function Invocation**: Use `netlify functions:invoke generate-test-data --querystring "hours=N"` while dev server is running
 3. **API Endpoint**: `/api/sentiment?include=trend` reads from Blobs and calculates the TrendPeriod
 4. **TrendChart Component**: Visualizes the data with Chart.js, automatically adjusting labels/messages based on window size
 5. **Trend Window**: Controlled by `NUXT_TREND_WINDOW_HOURS` environment variable (default: 168 hours = 7 days)
@@ -164,13 +164,15 @@ Once deployed to Netlify:
 **Architecture:**
 
 ```
-Browser → /.netlify/functions/generate-test-data
-              ↓ (saves to)
-         Netlify Blobs (sentiment-history)
-              ↓ (reads from)
-         /api/sentiment?include=trend
-              ↓ (displays)
-         TrendChart.vue Component
+Netlify CLI → netlify functions:invoke generate-test-data
+                  ↓ (executes function)
+             Netlify Function (generate-test-data.mts)
+                  ↓ (saves to)
+             Netlify Blobs (sentiment-history)
+                  ↓ (reads from)
+             /api/sentiment?include=trend
+                  ↓ (displays)
+             TrendChart.vue Component
 ```
 
 ---
