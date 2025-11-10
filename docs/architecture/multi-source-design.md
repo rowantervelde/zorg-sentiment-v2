@@ -11,65 +11,41 @@ The multi-source sentiment collection system aggregates data from multiple indep
 
 ## Architecture Diagram
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Netlify Scheduled Function                     │
-│                  (collect-sentiment.mts - Hourly)                 │
-└───────────────────────────┬───────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     Source Orchestrator                          │
-│                  (sourceOrchestrator.ts)                         │
-│                                                                   │
-│  • Reads source configurations from sources.json                 │
-│  • Fetches from all active sources in parallel                   │
-│  • Uses Promise.allSettled for graceful degradation              │
-│  • Enforces 10-second timeout per source                         │
-│  • Aggregates results with deduplication                         │
-│  • Tracks per-source contribution metrics                        │
-│                                                                   │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │              Adapter Registry (Map)                      │    │
-│  │                                                           │    │
-│  │  SourceType.RSS           → RSSAdapter                   │    │
-│  │  SourceType.SOCIAL_TWITTER → TwitterAdapter (stub)       │    │
-│  │  SourceType.SOCIAL_REDDIT  → RedditAdapter (stub)        │    │
-│  │  SourceType.API            → APIAdapter (future)         │    │
-│  └─────────────────────────────────────────────────────────┘    │
-└───────────────────┬────────────┬────────────┬───────────────────┘
-                    │            │            │
-         ┌──────────▼───┐ ┌─────▼──────┐ ┌──▼──────────┐
-         │ RSS Adapter  │ │  Twitter   │ │   Reddit    │
-         │              │ │  Adapter   │ │   Adapter   │
-         │ (Active)     │ │  (Stub)    │ │   (Stub)    │
-         └──────┬───────┘ └─────┬──────┘ └──┬──────────┘
-                │               │            │
-                ▼               ▼            ▼
-         ┌─────────────┐ ┌────────────┐ ┌──────────────┐
-         │   5 RSS     │ │  Twitter   │ │   Reddit     │
-         │   Feeds     │ │    API     │ │     API      │
-         └──────┬──────┘ └─────┬──────┘ └──┬───────────┘
-                │               │            │
-                └───────────────┴────────────┘
-                            │
-                            ▼
-                    ┌───────────────┐
-                    │ Deduplicator  │
-                    │ (80% thresh)  │
-                    └───────┬───────┘
-                            │
-                            ▼
-                    ┌───────────────┐
-                    │   Sentiment   │
-                    │   Analyzer    │
-                    └───────┬───────┘
-                            │
-                            ▼
-                    ┌───────────────┐
-                    │ Netlify Blobs │
-                    │  (7-day TTL)  │
-                    └───────────────┘
+```mermaid
+%%{init: {'theme':'base'}}%%
+flowchart TD
+    Scheduler["⏰ Netlify Scheduled Function<br/>(collect-sentiment.mts - Hourly)"]
+
+    Scheduler --> Orchestrator
+
+    subgraph Orchestrator["🎯 Source Orchestrator (sourceOrchestrator.ts)"]
+        direction TB
+        Config["📋 sources.json<br/>configurations"]
+        Registry["Adapter Registry (Map)"]
+
+        Config --> Registry
+
+        Registry --> |"SourceType.RSS"| RSSMap["→ RSSAdapter"]
+        Registry --> |"SourceType.SOCIAL_TWITTER"| TwitterMap["→ TwitterAdapter (stub)"]
+        Registry --> |"SourceType.SOCIAL_REDDIT"| RedditMap["→ RedditAdapter"]
+
+        Note1["✓ Parallel fetch (Promise.allSettled)<br/>✓ 10s timeout per source<br/>✓ Graceful degradation<br/>✓ Per-source metrics"]
+    end
+
+    Orchestrator --> RSSAdapter["📰 RSS Adapter<br/>(Active)"]
+    Orchestrator --> TwitterAdapter["🐦 Twitter Adapter<br/>(Stub)"]
+    Orchestrator --> RedditAdapter["🤖 Reddit Adapter<br/>(Active)"]
+
+    RSSAdapter --> RSSFeeds["5 RSS Feeds<br/>(NU.nl, NOS, etc.)"]
+    TwitterAdapter --> TwitterAPI["Twitter API<br/>(Planned)"]
+    RedditAdapter --> RedditAPI["Reddit API<br/>(snoowrap)"]
+
+    RSSFeeds --> Dedup["🔍 Deduplicator<br/>(80% similarity)"]
+    TwitterAPI --> Dedup
+    RedditAPI --> Dedup
+
+    Dedup --> Analyzer["📊 Sentiment Analyzer<br/>(sentiment.js)"]
+    Analyzer --> Storage["💾 Netlify Blobs<br/>(7-day retention)"]
 ```
 
 ## Core Components

@@ -22,6 +22,7 @@ Start here if you're new to the project:
 
 - **[Contributing Guide](../CONTRIBUTING.md)** - Development workflow and standards
 - **[Extending Sources](guides/extending-sources.md)** - Add new data source adapters
+- **[Mermaid Diagram Guide](mermaid-guide.md)** - Create diagrams in documentation
 
 ### Technical Documentation
 
@@ -53,6 +54,8 @@ Detailed specifications for each feature:
 ```
 zorg-sentiment-v2/
 ├── README.md                          # This file
+├── mermaid-guide.md                  # Diagram creation guide
+├── testing-trends.md                 # Trend testing guide
 ├── guides/                            # User & developer guides
 │   ├── getting-started.md            # Installation and setup
 │   ├── local-testing.md              # Testing guide
@@ -63,9 +66,8 @@ zorg-sentiment-v2/
 │   └── extending-sources.md          # Adding new sources
 ├── architecture/                      # Technical design
 │   └── multi-source-design.md        # Architecture overview
-├── api/                              # API documentation
-│   └── README.md                     # Endpoint reference
-└── testing-trends.md                 # Trend testing guide
+└── api/                              # API documentation
+    └── README.md                     # Endpoint reference
 ```
 
 ## 🎯 Documentation by Role

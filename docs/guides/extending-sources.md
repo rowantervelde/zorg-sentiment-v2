@@ -18,23 +18,25 @@ The sentiment collection system uses a **Adapter Pattern** to support multiple d
 
 ### Current Architecture
 
-```
-┌──────────────────────────────────────────────┐
-│ Source Orchestrator (sourceOrchestrator.ts)  │
-│                                              │
-│ ┌─ Adapter Registry ──────────────────────┐  │
-│ │ - RSS → RSSAdapter                      │  │
-│ │ - SOCIAL_TWITTER → TwitterAdapter       │  │
-│ │ - SOCIAL_REDDIT → RedditAdapter         │  │
-│ │ - API → APIAdapter                      │  │
-│ └─────────────────────────────────────────┘  │
-│                                              │
-│ Fetches from all sources in parallel,        │
-│ handles failures gracefully, deduplicates    │
-└──────────────────────────────────────────────┘
-```
+````mermaid
+%%{init: {'theme':'base'}}%%
+flowchart TB
+    Orchestrator["🎯 Source Orchestrator<br/>(sourceOrchestrator.ts)"]
 
-## Implementing a New Source Adapter
+    subgraph Registry["Adapter Registry"]
+        direction LR
+        RSS["RSS<br/>→ RSSAdapter"]
+        Twitter["SOCIAL_TWITTER<br/>→ TwitterAdapter"]
+        Reddit["SOCIAL_REDDIT<br/>→ RedditAdapter"]
+        API["API<br/>→ APIAdapter"]
+    end
+
+    Orchestrator --> Registry
+
+    Note["✓ Parallel fetch from all sources<br/>✓ Graceful failure handling<br/>✓ Cross-source deduplication"]
+
+    Registry -.-> Note
+```## Implementing a New Source Adapter
 
 ### Step 1: Implement the SourceAdapter Interface
 
@@ -134,7 +136,7 @@ export class NewSourceAdapter implements SourceAdapter {
     /* ... */
   }
 }
-```
+````
 
 ### Step 2: Add Source Type to Enum
 
