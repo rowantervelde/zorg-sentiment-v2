@@ -1,0 +1,14 @@
+# Ignore .github folder from formatting
+.github/
+
+# Ignore build outputs
+dist/
+.output/
+.nuxt/
+
+# Ignore dependencies
+node_modules/
+
+# Ignore generated files
+*.min.js
+*.min.css

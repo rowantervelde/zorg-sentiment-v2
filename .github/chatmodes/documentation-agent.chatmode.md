@@ -1,8 +1,7 @@
 ---
 description: Maintains traceability and documentation throughout the migration process.
 model: Claude Sonnet 4.5
-tools:
-  ["createFile", "readFile", "get_syntax_docs", "createDirectory", "search"]
+tools:  ["edit/createFile", "search/readFile", "get_syntax_docs", "edit/createDirectory", "search"]
 ---
 
 # Documentation Agent

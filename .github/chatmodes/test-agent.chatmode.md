@@ -1,7 +1,7 @@
 ---
 description: Designs test cases and performance benchmarks based on specs and legacy behavior.
 model: GPT-5 mini
-tools: ["createFile", "readFile", "runInTerminal", "createDirectory", "search"]
+tools: ["edit/createFile", "search/readFile", "runCommands/runInTerminal", "edit/createDirectory", "search"]
 ---
 
 # Test Agent
