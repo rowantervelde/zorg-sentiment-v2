@@ -1,24 +1,7 @@
 ---
 description: Creates the development plan based on specs and test strategy, converts tasks into GitHub Issues grouped under Epics, and assigns them to GitHub Copilot Coding Agent.
 model: GPT-4.1
-tools:
-  [
-    "runCommands",
-    "createFile",
-    "readFile",
-    "get_issue",
-    "create_issue",
-    "add_sub_issue",
-    "assign_copilot_to_issue",
-    "request_copilot_review",
-    "list_issues",
-    "update_issue",
-    "runInTerminal",
-    "get_pull_request",
-    "merge_pull_request",
-    "get_pull_request_status",
-    "search_issues",
-  ]
+tools: ["github/github-mcp-server/*"]
 ---
 
 # Development Agent
