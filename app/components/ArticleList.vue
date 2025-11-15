@@ -55,14 +55,39 @@
           </span>
         </div>
 
-        <!-- Article Excerpt -->
-        <p v-if="article.excerpt" class="article-excerpt">{{ article.excerpt }}</p>
+        <!-- Article Excerpt (collapsed state) -->
+        <p v-if="article.excerpt && !isExpanded(article)" class="article-excerpt">{{ article.excerpt }}</p>
 
         <!-- Sentiment Indicator -->
         <MoodIndicator
           :mood="getMoodFromScore(article.rawSentimentScore)"
           size="small"
         />
+
+        <!-- Expand/Collapse Button -->
+        <button
+          class="expand-toggle"
+          :aria-expanded="isExpanded(article)"
+          :aria-label="isExpanded(article) ? 'Inklapbare details' : 'Uitvouwbare details'"
+          @click="toggleExpanded(article)"
+          @keydown.enter="toggleExpanded(article)"
+          @keydown.space.prevent="toggleExpanded(article)"
+        >
+          <span class="expand-icon" :class="{ 'expanded': isExpanded(article) }">
+            {{ isExpanded(article) ? '▲' : '▼' }}
+          </span>
+          <span class="expand-label">
+            {{ isExpanded(article) ? 'Verberg details' : 'Toon details' }}
+          </span>
+        </button>
+
+        <!-- Expanded Article View -->
+        <transition name="expand">
+          <ArticleExpandedView
+            v-if="isExpanded(article)"
+            :article="article"
+          />
+        </transition>
       </div>
     </div>
 
@@ -89,6 +114,7 @@ const props = defineProps<Props>();
 
 // State
 const currentSort = ref<ArticleSortOption>('contribution');
+const expandedArticleIds = ref<Set<string>>(new Set());
 
 // Computed: Sorted articles
 const sortedArticles = computed(() => {
@@ -175,6 +201,25 @@ function trackArticleClick(article: ArticleDetail) {
   console.log('[ArticleList] Article clicked:', article.title);
   // FR-006: Article link opens in new tab (handled by target="_blank")
   // SC-007: Link opens within 500ms (native browser behavior)
+}
+
+// Task 3.1: Expand/collapse functionality
+function isExpanded(article: ArticleDetail): boolean {
+  const articleId = article.id || article.link;
+  return expandedArticleIds.value.has(articleId);
+}
+
+function toggleExpanded(article: ArticleDetail) {
+  const articleId = article.id || article.link;
+  
+  if (expandedArticleIds.value.has(articleId)) {
+    expandedArticleIds.value.delete(articleId);
+  } else {
+    expandedArticleIds.value.add(articleId);
+  }
+  
+  // Force reactivity update
+  expandedArticleIds.value = new Set(expandedArticleIds.value);
 }
 </script>
 
@@ -341,5 +386,67 @@ function trackArticleClick(article: ArticleDetail) {
   .article-list {
     gap: 2rem;
   }
+}
+
+/* Expand/Collapse Button */
+.expand-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background-color: #f9fafb;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+  margin-top: 0.5rem;
+}
+
+.expand-toggle:hover {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.expand-toggle:focus {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+.expand-icon {
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
+}
+
+.expand-icon.expanded {
+  transform: rotate(0deg);
+}
+
+.expand-label {
+  user-select: none;
+}
+
+/* Expand Transition */
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  opacity: 0;
+  max-height: 0;
+  transform: translateY(-10px);
+}
+
+.expand-enter-to,
+.expand-leave-from {
+  opacity: 1;
+  max-height: 1000px;
+  transform: translateY(0);
 }
 </style>
