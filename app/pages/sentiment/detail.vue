@@ -53,16 +53,28 @@
         :timestamp="timestamp"
       />
 
-      <!-- Article List Placeholder -->
-      <div class="article-list-placeholder">
-        <p>Artikelenlijst wordt toegevoegd in volgende taken...</p>
+      <!-- Article List -->
+      <ArticleList
+        v-if="articles && articles.length > 0"
+        :articles="articles"
+        :source-type="sourceData.sourceType"
+      />
+
+      <!-- No Articles State -->
+      <div v-else class="no-articles-state">
+        <div class="no-articles-icon" aria-hidden="true">📄</div>
+        <h3 class="no-articles-title">Geen artikelen gevonden</h3>
+        <p class="no-articles-text">
+          Deze bron heeft geen artikelen verzameld voor dit tijdstip.
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { SourceContribution } from '~/types/sentiment';
+import type { SourceContribution, ArticleDetail } from '~/types/sentiment';
+import type { ArticlesResponse } from '~/server/api/sentiment/articles.get';
 
 // Get route parameters
 const route = useRoute();
@@ -77,8 +89,9 @@ const isLoading = ref(true);
 const hasError = ref(false);
 const errorMessage = ref('');
 const sourceData = ref<SourceContribution | null>(null);
+const articles = ref<ArticleDetail[]>([]);
 
-// Fetch source data
+// Fetch source data and articles
 async function fetchSourceData() {
   if (!sourceId.value || !timestamp.value) {
     hasError.value = true;
@@ -91,18 +104,35 @@ async function fetchSourceData() {
   hasError.value = false;
 
   try {
-    // Fetch source contributions
-    const response = await $fetch<any>('/api/sentiment/sources');
+    // Fetch source contributions to get source metadata
+    const sourcesResponse = await $fetch<any>('/api/sentiment/sources');
     
     // Find the specific source
-    const source = response.sources?.find(
+    const source = sourcesResponse.sources?.find(
       (s: any) => s.sourceId === sourceId.value
     );
 
     if (!source) {
       sourceData.value = null;
+      articles.value = [];
     } else {
       sourceData.value = source;
+
+      // Fetch article-level details
+      try {
+        const articlesResponse = await $fetch<ArticlesResponse>('/api/sentiment/articles', {
+          query: {
+            source: sourceId.value,
+            timestamp: timestamp.value,
+          },
+        });
+
+        articles.value = articlesResponse.articles || [];
+      } catch (articleError: any) {
+        console.error('[Detail Page] Error fetching articles:', articleError);
+        // Continue with empty articles array if article fetch fails
+        articles.value = [];
+      }
     }
   } catch (err: any) {
     console.error('[Detail Page] Error fetching source data:', err);
@@ -310,7 +340,6 @@ useHead({
   max-width: 400px;
 }
 
-/* Content */
 .detail-content {
   max-width: 1200px;
   width: 100%;
@@ -320,13 +349,36 @@ useHead({
   gap: 2rem;
 }
 
-.article-list-placeholder {
-  padding: 2rem;
+/* No Articles State */
+.no-articles-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 1rem;
+  text-align: center;
   background-color: #f9fafb;
   border: 2px dashed #d1d5db;
   border-radius: 0.5rem;
-  text-align: center;
+}
+
+.no-articles-icon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.no-articles-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.no-articles-text {
+  font-size: 1rem;
   color: #6b7280;
+  margin: 0;
+  max-width: 400px;
 }
 
 /* Responsive Design */

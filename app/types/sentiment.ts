@@ -188,3 +188,73 @@ export const MVP_DATA_SOURCE: DataSource = {
   fetchIntervalMinutes: 60,
   articlesPerFetch: 20,
 };
+
+/**
+ * Article Detail View - Extended article information for detail page display
+ * Based on Feature 004 Sentiment Detail Breakdown specification
+ */
+export interface ArticleDetail {
+  // Core article fields
+  id?: string; // Optional unique identifier
+  title: string;
+  excerpt: string; // Content excerpt
+  pubDate: string | null; // ISO 8601 or null for missing dates
+  link: string;
+  sourceId: string;
+
+  // Sentiment analysis results
+  rawSentimentScore: number; // -1.0 to +1.0
+  positiveWords: string[]; // Words contributing to positive sentiment
+  negativeWords: string[]; // Words contributing to negative sentiment
+
+  // Weighting factors
+  recencyWeight: number; // 0.0-1.0
+  sourceWeight: number; // 0.0-1.0
+  finalWeightedScore: number; // Raw score * recency * source weight
+
+  // Contribution metrics
+  contributionPercentage: number; // 0-100
+
+  // Engagement metrics (social sources only)
+  upvotes?: number | null;
+  comments?: number | null;
+  upvoteRatio?: number; // 0.0-1.0
+
+  // Deduplication status
+  deduplicated?: boolean;
+  contentLength?: number; // For truncation logic
+}
+
+/**
+ * Source Detail Summary - Aggregate information for source at detail page header
+ */
+export interface SourceDetailSummary {
+  // Source metadata
+  sourceId: string;
+  sourceName: string;
+  sourceType: string; // 'rss' | 'social' | 'reddit'
+
+  // Article counts
+  totalArticles: number;
+  deduplicatedArticles: number;
+
+  // Sentiment breakdown
+  positivePercentage: number; // 0-100
+  neutralPercentage: number; // 0-100
+  negativePercentage: number; // 0-100
+
+  // Collection metadata
+  fetchedAt: string; // ISO 8601
+  fetchStatus: 'success' | 'failed' | 'partial';
+  error?: string;
+}
+
+/**
+ * Sort options for article list
+ */
+export type ArticleSortOption = 
+  | 'contribution' // Default: by contribution weight (highest first)
+  | 'sentiment-high' // By sentiment score (high to low)
+  | 'sentiment-low' // By sentiment score (low to high)
+  | 'recency' // By publication date (newest first)
+  | 'engagement'; // By engagement metrics (social only)
