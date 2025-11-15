@@ -1,7 +1,7 @@
 ---
-name: Spec Agent
+name: Spec-zgent
 description: Translates validated analysis into user stories and architecture specs for development.
-tools: ['edit', 'read', 'mermaidchart.vscode-mermaid-chart/get_syntax_docs', 'mermaidchart.vscode-mermaid-chart/mermaid-diagram-validator', 'mermaidchart.vscode-mermaid-chart/mermaid-diagram-preview']
+tools: ['edit', 'mermaidchart.vscode-mermaid-chart/get_syntax_docs', 'mermaidchart.vscode-mermaid-chart/mermaid-diagram-validator', 'mermaidchart.vscode-mermaid-chart/mermaid-diagram-preview']
 ---
 
 # Spec Agent

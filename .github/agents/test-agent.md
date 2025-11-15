@@ -1,7 +1,7 @@
 ---
-name: Test Agent
+name: Test-agent
 description: Designs test cases and performance benchmarks based on specs and existing codebase.
-tools: ["edit", "read", "shell", "search"]
+tools: ['runCommands', 'edit', 'search']
 ---
 
 # Test Agent
