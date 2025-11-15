@@ -233,7 +233,11 @@ async function calculateSourceMetrics(
       sourceName: contribution.sourceName,
       sourceType: contribution.sourceType,
       articlesCollected: contribution.articlesCollected,
-      sentimentBreakdown: contribution.sentimentBreakdown,
+      sentimentBreakdown: contribution.sentimentBreakdown || {
+        positive: 0,
+        neutral: 0,
+        negative: 0,
+      },
       fetchedAt: contribution.fetchedAt,
       fetchDurationMs: contribution.fetchDurationMs,
       status: contribution.status,
