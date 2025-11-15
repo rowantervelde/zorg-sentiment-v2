@@ -69,6 +69,19 @@
           class="trend-section"
         />
 
+        <!-- Source Cards (Feature 004 - Epic 1) -->
+        <div v-if="sources.length > 0" class="sources-section">
+          <h2 class="sources-title">Bronnen</h2>
+          <div class="sources-grid">
+            <SourceCard
+              v-for="source in sources"
+              :key="source.sourceId"
+              :source="source"
+              :timestamp="state.current!.timestamp"
+            />
+          </div>
+        </div>
+
         <!-- Data Source Info -->
         <div class="data-source">
           <p class="source-text">
@@ -89,21 +102,50 @@
 
 <script setup lang="ts">
 import type { TrendPeriod } from '~/types/sentiment';
+import type { SourceContribution } from '~/types/sentiment';
 
 // Use sentiment composable (T028, T037)
 const { state, hasData, isLoading, hasError, fetchWithTrend } = useSentiment();
 
+// Source contributions state
+const sources = ref<SourceContribution[]>([]);
+
 // No data message (T030)
 const noDataMessage = 'We verzamelen nog gegevens over de stemming. Check straks terug!';
+
+// Fetch source contributions
+async function fetchSources() {
+  try {
+    const response = await $fetch<any>('/api/sentiment/sources');
+    sources.value = response.sources || [];
+  } catch (error) {
+    console.error('[Dashboard] Error fetching sources:', error);
+    sources.value = [];
+  }
+}
 
 // Refresh function that fetches with trend data
 const refreshData = async () => {
   await fetchWithTrend();
+  await fetchSources();
 };
 
-// Fetch data on mount - now includes trend data (T037)
+// Restore scroll position on mount (Epic 1 - Task 1.3)
 onMounted(async () => {
   await fetchWithTrend();
+  await fetchSources();
+
+  // Restore scroll position if returning from detail page
+  if (typeof window !== 'undefined') {
+    const savedScrollPosition = sessionStorage.getItem('dashboard-scroll-position');
+    if (savedScrollPosition) {
+      // Use setTimeout to ensure DOM is fully rendered
+      setTimeout(() => {
+        window.scrollTo(0, parseInt(savedScrollPosition));
+        sessionStorage.removeItem('dashboard-scroll-position');
+      }, 100);
+    }
+  }
 });
 
 // Set page meta (T068: SEO meta tags including OG tags for social sharing)
@@ -388,6 +430,26 @@ useHead({
   width: 100%;
 }
 
+/* Sources Section (Epic 1) */
+.sources-section {
+  width: 100%;
+}
+
+.sources-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+}
+
+.sources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
 /* Data Source Info */
 .data-source {
   text-align: center;
@@ -444,6 +506,15 @@ useHead({
   .error-title,
   .no-data-title {
     font-size: 1.25rem;
+  }
+
+  .sources-title {
+    font-size: 1.25rem;
+  }
+
+  .sources-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 }
 
