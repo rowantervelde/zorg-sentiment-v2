@@ -23,42 +23,42 @@
         </div>
 
         <!-- Sentiment Breakdown -->
-        <div class="sentiment-breakdown">
+        <div v-if="sentimentBreakdown" class="sentiment-breakdown">
           <h2 class="breakdown-title">Sentimentverdeling</h2>
           <div class="breakdown-bars">
             <div class="breakdown-bar">
               <div class="bar-label">
                 <span class="label-text">Positief</span>
-                <span class="label-value">{{ source.sentimentBreakdown.positive }}%</span>
+                <span class="label-value">{{ sentimentBreakdown.positive }}%</span>
               </div>
               <div class="bar-track">
                 <div 
                   class="bar-fill bar-positive"
-                  :style="{ width: `${source.sentimentBreakdown.positive}%` }"
+                  :style="{ width: `${sentimentBreakdown.positive}%` }"
                 ></div>
               </div>
             </div>
             <div class="breakdown-bar">
               <div class="bar-label">
                 <span class="label-text">Neutraal</span>
-                <span class="label-value">{{ source.sentimentBreakdown.neutral }}%</span>
+                <span class="label-value">{{ sentimentBreakdown.neutral }}%</span>
               </div>
               <div class="bar-track">
                 <div 
                   class="bar-fill bar-neutral"
-                  :style="{ width: `${source.sentimentBreakdown.neutral}%` }"
+                  :style="{ width: `${sentimentBreakdown.neutral}%` }"
                 ></div>
               </div>
             </div>
             <div class="breakdown-bar">
               <div class="bar-label">
                 <span class="label-text">Negatief</span>
-                <span class="label-value">{{ source.sentimentBreakdown.negative }}%</span>
+                <span class="label-value">{{ sentimentBreakdown.negative }}%</span>
               </div>
               <div class="bar-track">
                 <div 
                   class="bar-fill bar-negative"
-                  :style="{ width: `${source.sentimentBreakdown.negative}%` }"
+                  :style="{ width: `${sentimentBreakdown.negative}%` }"
                 ></div>
               </div>
             </div>
@@ -121,6 +121,15 @@ const statusLabel = computed(() => {
 // Article percentage (from extended source data)
 const articlePercentage = computed(() => {
   return props.source.articlePercentage || 0;
+});
+
+// Sentiment breakdown with safe defaults
+const sentimentBreakdown = computed(() => {
+  return props.source.sentimentBreakdown || {
+    positive: 0,
+    neutral: 0,
+    negative: 0,
+  };
 });
 
 // Check if data is stale (>24 hours old)

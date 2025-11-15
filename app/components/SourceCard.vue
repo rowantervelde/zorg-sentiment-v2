@@ -25,28 +25,28 @@
       </div>
 
       <!-- Sentiment Mini-Breakdown -->
-      <div class="sentiment-mini">
+      <div v-if="sentimentBreakdown" class="sentiment-mini">
         <div class="mini-bar">
           <div 
             class="mini-segment mini-positive"
-            :style="{ width: `${source.sentimentBreakdown.positive}%` }"
-            :title="`${source.sentimentBreakdown.positive}% positief`"
+            :style="{ width: `${sentimentBreakdown.positive}%` }"
+            :title="`${sentimentBreakdown.positive}% positief`"
           ></div>
           <div 
             class="mini-segment mini-neutral"
-            :style="{ width: `${source.sentimentBreakdown.neutral}%` }"
-            :title="`${source.sentimentBreakdown.neutral}% neutraal`"
+            :style="{ width: `${sentimentBreakdown.neutral}%` }"
+            :title="`${sentimentBreakdown.neutral}% neutraal`"
           ></div>
           <div 
             class="mini-segment mini-negative"
-            :style="{ width: `${source.sentimentBreakdown.negative}%` }"
-            :title="`${source.sentimentBreakdown.negative}% negatief`"
+            :style="{ width: `${sentimentBreakdown.negative}%` }"
+            :title="`${sentimentBreakdown.negative}% negatief`"
           ></div>
         </div>
         <div class="mini-labels">
-          <span class="mini-label positive">{{ source.sentimentBreakdown.positive }}%</span>
-          <span class="mini-label neutral">{{ source.sentimentBreakdown.neutral }}%</span>
-          <span class="mini-label negative">{{ source.sentimentBreakdown.negative }}%</span>
+          <span class="mini-label positive">{{ sentimentBreakdown.positive }}%</span>
+          <span class="mini-label neutral">{{ sentimentBreakdown.neutral }}%</span>
+          <span class="mini-label negative">{{ sentimentBreakdown.negative }}%</span>
         </div>
       </div>
 
@@ -78,6 +78,15 @@ const sourceTypeLabel = computed(() => {
     other: 'Andere',
   };
   return labels[props.source.sourceType] || props.source.sourceType;
+});
+
+// Sentiment breakdown with safe defaults
+const sentimentBreakdown = computed(() => {
+  return props.source.sentimentBreakdown || {
+    positive: 0,
+    neutral: 0,
+    negative: 0,
+  };
 });
 
 // Navigate to detail page
