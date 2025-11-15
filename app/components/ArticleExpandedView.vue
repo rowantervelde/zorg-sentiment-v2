@@ -1,5 +1,14 @@
 <template>
   <div class="expanded-view" role="region" :aria-label="`Gedetailleerde analyse van ${article.title}`">
+    <!-- Neutral Article Notice (Task 3.5 Edge Case) -->
+    <div v-if="isNeutralArticle" class="neutral-notice" role="alert">
+      <span class="notice-icon" aria-hidden="true">ℹ️</span>
+      <div class="notice-content">
+        <strong>Neutraal artikel</strong>
+        <p>Dit artikel heeft een neutrale sentiment score en er zijn geen specifieke positieve of negatieve woorden geïdentificeerd.</p>
+      </div>
+    </div>
+
     <!-- Article Excerpt with Word Highlights -->
     <div class="section">
       <h4 class="section-title">Artikeltekst met sentiment highlights</h4>
@@ -116,10 +125,15 @@
 
     <!-- Screen Reader Summary -->
     <div class="sr-only" role="status" aria-live="polite">
-      Dit artikel heeft een {{ getMoodLabel(article.rawSentimentScore) }} sentiment
-      met {{ positiveWordsCount }} positieve woorden en {{ negativeWordsCount }} negatieve woorden.
-      De gewogen score is {{ formatScore(article.finalWeightedScore) }} 
-      en draagt {{ formatPercentage(article.contributionPercentage) }} bij aan het totale sentiment.
+      <span v-if="isNeutralArticle">
+        Dit artikel heeft een neutrale sentiment score zonder geïdentificeerde positieve of negatieve woorden.
+      </span>
+      <span v-else>
+        Dit artikel heeft een {{ getMoodLabel(article.rawSentimentScore) }} sentiment
+        met {{ positiveWordsCount }} positieve woorden en {{ negativeWordsCount }} negatieve woorden.
+        De gewogen score is {{ formatScore(article.finalWeightedScore) }} 
+        en draagt {{ formatPercentage(article.contributionPercentage) }} bij aan het totale sentiment.
+      </span>
     </div>
   </div>
 </template>
@@ -163,6 +177,12 @@ const positiveWordsCount = computed(() => props.article.positiveWords?.length ||
 const negativeWordsCount = computed(() => props.article.negativeWords?.length || 0);
 const hasPositiveWords = computed(() => positiveWordsCount.value > 0);
 const hasNegativeWords = computed(() => negativeWordsCount.value > 0);
+
+// Edge case: Check if this is a neutral article with no identified words
+const isNeutralArticle = computed(() => {
+  const score = props.article.rawSentimentScore;
+  return Math.abs(score) < 0.1 && !hasPositiveWords.value && !hasNegativeWords.value;
+});
 
 // Task 3.3: Word highlighting with accessibility
 const highlightedExcerpt = computed(() => {
@@ -302,6 +322,41 @@ function getMoodLabel(score: number): string {
   font-weight: 600;
   color: #111827;
   margin: 0;
+}
+
+/* Neutral Article Notice (Task 3.5) */
+.neutral-notice {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 0.375rem;
+  align-items: flex-start;
+}
+
+.notice-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.notice-content {
+  flex: 1;
+}
+
+.notice-content strong {
+  display: block;
+  color: #92400e;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.notice-content p {
+  color: #78350f;
+  font-size: 0.875rem;
+  margin: 0;
+  line-height: 1.5;
 }
 
 /* Highlighted Excerpt */
