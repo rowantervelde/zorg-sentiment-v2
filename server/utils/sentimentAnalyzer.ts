@@ -1,6 +1,6 @@
 /**
  * Sentiment Analyzer for Dutch text
- * Analyzes text sentiment using the sentiment npm package
+ * Analyzes text sentiment using custom Dutch healthcare lexicon
  * Classifies mood based on ≥60% threshold
  */
 
@@ -8,8 +8,11 @@ import Sentiment from 'sentiment';
 import type { MoodType } from '~/types/sentiment';
 import type { Article, ArticleWithSentiment } from '../types/article';
 import type { SourceConfiguration } from '../types/sourceConfiguration';
+import { dutchLanguage } from './sentiment/languages/nl';
 
+// Initialize sentiment analyzer with Dutch language support
 const sentiment = new Sentiment();
+sentiment.registerLanguage('nl', dutchLanguage);
 
 /**
  * Sentiment analysis result
@@ -28,12 +31,11 @@ export interface SentimentAnalysis {
 }
 
 /**
- * Analyze sentiment of Dutch text
- * Note: The sentiment package is English-focused, but works reasonably with Dutch
- * For production, consider using Google Cloud Natural Language API with Dutch support
+ * Analyze sentiment of Dutch text using custom Dutch healthcare lexicon
+ * Uses Dutch-specific vocabulary including healthcare terms
  */
 export function analyzeSentiment(text: string): SentimentAnalysis {
-  const result = sentiment.analyze(text);
+  const result = sentiment.analyze(text, { language: 'nl' });
 
   // Calculate percentages based on positive/negative word counts
   const totalWords = result.positive.length + result.negative.length;
@@ -235,8 +237,8 @@ export function analyzeArticleWithDetails(
   article: Article,
   sourceConfig?: SourceConfiguration
 ): ArticleWithSentiment {
-  // Analyze article content
-  const result = sentiment.analyze(article.content);
+  // Analyze article content using Dutch language
+  const result = sentiment.analyze(article.content, { language: 'nl' });
   
   // Extract word lists from sentiment analyzer
   const positiveWords = result.positive || [];
