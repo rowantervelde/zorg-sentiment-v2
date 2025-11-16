@@ -83,16 +83,22 @@ export default defineEventHandler(async (event): Promise<ArticlesResponse> => {
       throw StandardErrors.notFound(`Source not found: ${sourceId}`);
     }
 
-    // Build source summary
+    // Build source summary with safe defaults for sentimentBreakdown
+    const breakdown = sourceContribution.sentimentBreakdown || {
+      positive: 0,
+      neutral: 0,
+      negative: 0,
+    };
+
     const sourceSummary: SourceDetailSummary = {
       sourceId: sourceContribution.sourceId,
       sourceName: sourceContribution.sourceName,
       sourceType: sourceContribution.sourceType,
       totalArticles: sourceContribution.articlesCollected,
       deduplicatedArticles: 0, // TODO: Add dedupe tracking
-      positivePercentage: sourceContribution.sentimentBreakdown.positive,
-      neutralPercentage: sourceContribution.sentimentBreakdown.neutral,
-      negativePercentage: sourceContribution.sentimentBreakdown.negative,
+      positivePercentage: breakdown.positive,
+      neutralPercentage: breakdown.neutral,
+      negativePercentage: breakdown.negative,
       fetchedAt: sourceContribution.fetchedAt,
       fetchStatus: sourceContribution.status,
       error: sourceContribution.error,
@@ -144,7 +150,12 @@ function generateMockArticles(sourceContribution: any): ArticleDetail[] {
 
   // Generate mock articles with realistic sentiment distribution
   const articles: ArticleDetail[] = [];
-  const { positive, neutral, negative } = sourceContribution.sentimentBreakdown;
+  const breakdown = sourceContribution.sentimentBreakdown || {
+    positive: 0,
+    neutral: 0,
+    negative: 0,
+  };
+  const { positive, neutral, negative } = breakdown;
 
   // Calculate how many articles of each type
   const positiveCount = Math.round((positive / 100) * articleCount);
