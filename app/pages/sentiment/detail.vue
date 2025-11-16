@@ -74,7 +74,7 @@
 
 <script setup lang="ts">
 import type { SourceContribution, ArticleDetail } from '~/types/sentiment';
-import type { ArticlesResponse } from '~/server/api/sentiment/articles.get';
+import type { ArticlesResponse } from '../../../server/api/sentiment/articles.get';
 
 // Get route parameters
 const route = useRoute();

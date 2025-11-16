@@ -6,6 +6,8 @@
 
 import Sentiment from 'sentiment';
 import type { MoodType } from '~/types/sentiment';
+import type { Article, ArticleWithSentiment } from '../types/article';
+import type { SourceConfiguration } from '../types/sourceConfiguration';
 
 const sentiment = new Sentiment();
 
@@ -160,4 +162,146 @@ export function calculateConfidence(
   const clarityConfidence = Math.abs(analysis.breakdown.positive - analysis.breakdown.negative) / 100 * 0.2;
   
   return Math.min(wordConfidence + articleConfidence + clarityConfidence, 1.0);
+}
+
+/**
+ * Calculate recency weight using exponential decay
+ * More recent articles have higher weight (closer to 1.0)
+ * Older articles decay towards 0.5
+ * 
+ * @param pubDate - Publication date (ISO 8601)
+ * @param halfLifeHours - Time for weight to decay to 0.75 (default 24 hours)
+ * @returns Weight between 0.5 and 1.0
+ */
+export function calculateRecencyWeight(pubDate: string, halfLifeHours: number = 24): number {
+  const now = Date.now();
+  const pubTime = new Date(pubDate).getTime();
+  const ageHours = (now - pubTime) / (1000 * 60 * 60);
+  
+  // Exponential decay: weight = 0.5 + 0.5 * exp(-ageHours / halfLifeHours)
+  // Recent articles (age=0) → 1.0
+  // Old articles (age→∞) → 0.5
+  const weight = 0.5 + 0.5 * Math.exp(-ageHours / halfLifeHours);
+  
+  return Math.max(0.5, Math.min(1.0, weight));
+}
+
+/**
+ * Calculate source reliability weight
+ * Based on source's historical success rate and response time
+ * 
+ * @param sourceConfig - Source configuration with reliability metrics
+ * @returns Weight between 0.5 and 1.0
+ */
+export function calculateSourceWeight(sourceConfig?: SourceConfiguration): number {
+  if (!sourceConfig?.reliability) {
+    return 1.0; // Default to full weight if no reliability data
+  }
+  
+  const reliability = sourceConfig.reliability;
+  const successRate = reliability.successRate ?? 100;
+  const isHealthy = (reliability as any).isHealthy ?? true;
+  const isInactive = (reliability as any).isInactive ?? false;
+  
+  // Inactive sources get minimum weight
+  if (isInactive) {
+    return 0.5;
+  }
+  
+  // Unhealthy sources get reduced weight
+  if (!isHealthy) {
+    return 0.7;
+  }
+  
+  // Scale success rate (0-100) to weight (0.8-1.0)
+  // 100% success → 1.0
+  // 0% success → 0.8
+  const weight = 0.8 + (successRate / 100) * 0.2;
+  
+  return Math.max(0.5, Math.min(1.0, weight));
+}
+
+/**
+ * Analyze individual article with complete sentiment details
+ * Returns ArticleWithSentiment including scores, word lists, and weights
+ * 
+ * Feature 004: Single source of truth for all sentiment metrics
+ * 
+ * @param article - Article to analyze
+ * @param sourceConfig - Optional source configuration for weighting
+ * @returns ArticleWithSentiment with complete analysis
+ */
+export function analyzeArticleWithDetails(
+  article: Article,
+  sourceConfig?: SourceConfiguration
+): ArticleWithSentiment {
+  // Analyze article content
+  const result = sentiment.analyze(article.content);
+  
+  // Extract word lists from sentiment analyzer
+  const positiveWords = result.positive || [];
+  const negativeWords = result.negative || [];
+  
+  // Normalize score to -1.0 to +1.0 range
+  // comparative score is already normalized per word
+  const rawSentimentScore = Math.max(-1.0, Math.min(1.0, result.comparative));
+  
+  // Calculate weights
+  const recencyWeight = calculateRecencyWeight(article.pubDate);
+  const sourceWeight = calculateSourceWeight(sourceConfig);
+  
+  // Calculate final weighted score
+  const finalWeightedScore = rawSentimentScore * recencyWeight * sourceWeight;
+  
+  // Generate unique ID
+  const id = `${article.sourceId}-${article.deduplicationHash.substring(0, 8)}`;
+  
+  return {
+    ...article,
+    id,
+    rawSentimentScore,
+    positiveWords,
+    negativeWords,
+    recencyWeight,
+    sourceWeight,
+    finalWeightedScore,
+    contributionPercentage: 0, // Will be calculated after analyzing all articles
+    deduplicated: false, // Will be set by deduplicator
+  };
+}
+
+/**
+ * Calculate contribution percentages for analyzed articles
+ * Normalizes finalWeightedScore to percentage of total impact
+ * 
+ * @param articles - Articles with sentiment analysis
+ * @returns Same articles with updated contributionPercentage
+ */
+export function calculateContributionPercentages(
+  articles: ArticleWithSentiment[]
+): ArticleWithSentiment[] {
+  if (articles.length === 0) {
+    return articles;
+  }
+  
+  // Sum of absolute weighted scores (total impact)
+  const totalImpact = articles.reduce(
+    (sum, article) => sum + Math.abs(article.finalWeightedScore),
+    0
+  );
+  
+  if (totalImpact === 0) {
+    // All neutral articles
+    const equalPercentage = 100 / articles.length;
+    return articles.map(article => ({
+      ...article,
+      contributionPercentage: equalPercentage,
+    }));
+  }
+  
+  // Calculate percentage for each article
+  return articles.map(article => ({
+    ...article,
+    contributionPercentage: (Math.abs(article.finalWeightedScore) / totalImpact) * 100,
+  }));
 }
