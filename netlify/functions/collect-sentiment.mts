@@ -4,14 +4,19 @@
  * Schedule configured in netlify.toml: @hourly
  * 
  * Updated for multi-source collection (feature 002-multi-source-sentiment)
+ * Feature 004: Now analyzes and stores individual articles with sentiment details
  */
 
 import type { Config } from '@netlify/functions';
 import type { SentimentDataPoint } from '../../app/types/sentiment';
 import type { SourceConfiguration } from '../../server/types/sourceConfiguration';
+import type { ArticleWithSentiment } from '../../server/types/article';
 import { fetchFromAllSources } from '../../server/utils/sourceOrchestrator';
-import { analyzeMultiple, calculateConfidence } from '../../server/utils/sentimentAnalyzer';
-import { generateMoodSummary } from '../../server/utils/moodSummary';
+import { 
+  analyzeArticleWithDetails, 
+  calculateContributionPercentages 
+} from '../../server/utils/sentimentAnalyzer';
+import { generateMoodSummary, calculateMoodFromArticles } from '../../server/utils/moodSummary';
 import { addDataPoint } from '../../server/utils/storage';
 import sourcesConfig from '../../server/config/sources.json';
 
@@ -56,22 +61,63 @@ export default async (req: Request) => {
       });
     }
 
-    // Step 3: Analyze sentiment across all articles
-    console.log('[Collect Sentiment] Analyzing sentiment...');
-    console.time('[Collect Sentiment] Sentiment analysis');
-    const articleTexts = articles.map((a) => a.content);
-    console.log(`[Collect Sentiment] Analyzing ${articleTexts.length} article texts...`);
+    // Step 3: Analyze each article individually with full details
+    console.log('[Collect Sentiment] Analyzing articles individually...');
+    console.time('[Collect Sentiment] Individual article analysis');
     
-    const analysis = analyzeMultiple(articleTexts);
-    console.timeEnd('[Collect Sentiment] Sentiment analysis');
+    // Get source config map for weighting
+    const sourceConfigMap = new Map<string, SourceConfiguration>();
+    sources.forEach(source => sourceConfigMap.set(source.id, source));
     
-    console.log('[Collect Sentiment] Analysis complete:', {
-      mood: analysis.moodClassification,
-      breakdown: analysis.breakdown,
+    // Analyze each article
+    let analyzedArticles: ArticleWithSentiment[] = articles.map((article) => {
+      const sourceConfig = sourceConfigMap.get(article.sourceId);
+      return analyzeArticleWithDetails(article, sourceConfig);
+    });
+    
+    // Calculate contribution percentages
+    analyzedArticles = calculateContributionPercentages(analyzedArticles);
+    
+    console.timeEnd('[Collect Sentiment] Individual article analysis');
+    console.log(`[Collect Sentiment] Analyzed ${analyzedArticles.length} articles individually`);
+    
+    // Step 4: Limit articles per source to top 50 by contribution
+    console.log('[Collect Sentiment] Limiting to top 50 articles per source...');
+    const MAX_ARTICLES_PER_SOURCE = 50;
+    const articlesBySource = new Map<string, ArticleWithSentiment[]>();
+    
+    // Group by source
+    analyzedArticles.forEach(article => {
+      const existing = articlesBySource.get(article.sourceId) || [];
+      existing.push(article);
+      articlesBySource.set(article.sourceId, existing);
+    });
+    
+    // Keep top 50 per source by contribution percentage
+    const limitedArticles: ArticleWithSentiment[] = [];
+    articlesBySource.forEach((sourceArticles, sourceId) => {
+      const sorted = sourceArticles.sort((a, b) => b.contributionPercentage - a.contributionPercentage);
+      const topArticles = sorted.slice(0, MAX_ARTICLES_PER_SOURCE);
+      limitedArticles.push(...topArticles);
+      
+      if (sourceArticles.length > MAX_ARTICLES_PER_SOURCE) {
+        console.log(`[Collect Sentiment] Limited ${sourceId} from ${sourceArticles.length} to ${MAX_ARTICLES_PER_SOURCE} articles`);
+      }
+    });
+    
+    console.log(`[Collect Sentiment] Storing ${limitedArticles.length} articles (limited from ${analyzedArticles.length})`);
+    
+    // Step 5: Calculate aggregate metrics FROM analyzed articles (single source of truth)
+    console.log('[Collect Sentiment] Calculating aggregate metrics from articles...');
+    const { breakdown, moodClassification } = calculateMoodFromArticles(limitedArticles);
+    
+    console.log('[Collect Sentiment] Aggregate analysis complete:', {
+      mood: moodClassification,
+      breakdown,
     });
 
-    // Step 4: Calculate per-source sentiment breakdown
-    console.log('[Collect Sentiment] Calculating per-source sentiment breakdowns...');
+    // Step 6: Calculate per-source sentiment breakdown FROM articles
+    console.log('[Collect Sentiment] Calculating per-source sentiment breakdowns from articles...');
     console.time('[Collect Sentiment] Per-source analysis');
     const updatedContributions = sourceContributions.map((contribution) => {
       if (contribution.status === 'failed' || contribution.articlesCollected === 0) {
@@ -79,22 +125,21 @@ export default async (req: Request) => {
         return contribution;
       }
       
-      // Get articles from this source
-      const sourceArticles = articles.filter((a) => a.sourceId === contribution.sourceId);
+      // Get analyzed articles from this source
+      const sourceArticles = limitedArticles.filter((a) => a.sourceId === contribution.sourceId);
       
       if (sourceArticles.length === 0) {
-        console.log(`[Collect Sentiment] No articles found for ${contribution.sourceName} in deduplicated set`);
+        console.log(`[Collect Sentiment] No articles found for ${contribution.sourceName} in analyzed set`);
         return contribution;
       }
       
-      // Analyze sentiment for this source's articles
-      const sourceTexts = sourceArticles.map((a) => a.content);
-      console.log(`[Collect Sentiment] Analyzing ${sourceTexts.length} articles from ${contribution.sourceName}...`);
-      const sourceAnalysis = analyzeMultiple(sourceTexts);
+      // Calculate breakdown from articles
+      const { breakdown: sourceBreakdown } = calculateMoodFromArticles(sourceArticles);
+      console.log(`[Collect Sentiment] ${contribution.sourceName}: ${sourceArticles.length} articles analyzed`);
       
       return {
         ...contribution,
-        sentimentBreakdown: sourceAnalysis.breakdown,
+        sentimentBreakdown: sourceBreakdown,
       };
     });
     console.timeEnd('[Collect Sentiment] Per-source analysis');
@@ -103,19 +148,20 @@ export default async (req: Request) => {
     // Step 5: Generate mood summary
     console.log('[Collect Sentiment] Generating mood summary...');
     const timestamp = new Date().toISOString();
-    const confidence = calculateConfidence(analysis, articles.length);
+    const confidence = limitedArticles.length / 100; // Simple confidence: more articles = higher confidence (capped at 1.0)
     
     const dataPoint: SentimentDataPoint = {
       timestamp,
       collectionDurationMs: Date.now() - startTime,
-      moodClassification: analysis.moodClassification,
-      breakdown: analysis.breakdown,
+      moodClassification,
+      breakdown,
       summary: '', // Will be set below
-      articlesAnalyzed: articles.length,
+      articlesAnalyzed: limitedArticles.length,
       source: 'multi-source', // Legacy field - kept for backward compatibility
-      confidence,
+      confidence: Math.min(confidence, 1.0),
       sourceContributions: updatedContributions,
       sourceDiversity,
+      analyzedArticles: limitedArticles, // Feature 004: Store individual articles
     };
 
     const moodSummary = generateMoodSummary(dataPoint);
@@ -126,6 +172,7 @@ export default async (req: Request) => {
       timestamp: dataPoint.timestamp,
       mood: dataPoint.moodClassification,
       articlesAnalyzed: dataPoint.articlesAnalyzed,
+      storedArticles: dataPoint.analyzedArticles?.length,
       sourceContributions: dataPoint.sourceContributions?.length,
     });
 

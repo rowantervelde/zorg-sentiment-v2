@@ -4,6 +4,7 @@
  */
 
 import type { MoodType, MoodSummary, SentimentDataPoint } from '~/types/sentiment';
+import type { ArticleWithSentiment } from '../types/article';
 
 /**
  * Dutch mood summary templates
@@ -162,4 +163,72 @@ export function formatTimestamp(isoDate: string): string {
  */
 export function validateSummaryLength(text: string): boolean {
   return text.length <= 200;
+}
+
+/**
+ * Calculate aggregate mood and breakdown from analyzed articles
+ * Single source of truth - all metrics derived from article-level data
+ * 
+ * Feature 004: Replaces source-percentage based calculation
+ * 
+ * @param articles - Array of analyzed articles with sentiment scores
+ * @returns Aggregate breakdown and mood classification
+ */
+export function calculateMoodFromArticles(articles: ArticleWithSentiment[]): {
+  breakdown: { positive: number; neutral: number; negative: number };
+  moodClassification: MoodType;
+} {
+  if (articles.length === 0) {
+    return {
+      breakdown: { positive: 0, neutral: 100, negative: 0 },
+      moodClassification: 'neutral',
+    };
+  }
+  
+  // Count articles by sentiment category
+  let positiveCount = 0;
+  let neutralCount = 0;
+  let negativeCount = 0;
+  
+  articles.forEach((article) => {
+    // Classify based on raw sentiment score
+    // Positive: > 0.2
+    // Negative: < -0.2
+    // Neutral: -0.2 to 0.2
+    if (article.rawSentimentScore > 0.2) {
+      positiveCount++;
+    } else if (article.rawSentimentScore < -0.2) {
+      negativeCount++;
+    } else {
+      neutralCount++;
+    }
+  });
+  
+  // Calculate percentages
+  const total = articles.length;
+  const positivePercentage = Math.round((positiveCount / total) * 100);
+  const negativePercentage = Math.round((negativeCount / total) * 100);
+  const neutralPercentage = 100 - positivePercentage - negativePercentage;
+  
+  // Classify mood based on ≥60% threshold
+  let moodClassification: MoodType = 'neutral';
+  
+  if (positivePercentage >= 60) {
+    moodClassification = 'positive';
+  } else if (negativePercentage >= 60) {
+    moodClassification = 'negative';
+  } else if (positivePercentage > negativePercentage && positivePercentage >= 40) {
+    moodClassification = 'mixed'; // Leaning positive
+  } else if (negativePercentage > positivePercentage && negativePercentage >= 40) {
+    moodClassification = 'mixed'; // Leaning negative
+  }
+  
+  return {
+    breakdown: {
+      positive: positivePercentage,
+      neutral: neutralPercentage,
+      negative: negativePercentage,
+    },
+    moodClassification,
+  };
 }

@@ -4,10 +4,13 @@
  * 
  * Supports multi-source sentiment data with sourceContributions and sourceDiversity
  * (added in feature 002-multi-source-sentiment)
+ * 
+ * Feature 004: Now stores individual analyzed articles for detail view
  */
 
 import { getStore } from '@netlify/blobs';
 import type { SentimentDataPoint, SentimentHistory, DataSource } from '~/types/sentiment';
+import type { ArticleWithSentiment } from '../types/article';
 
 const STORE_NAME = 'sentiment-data';
 const RETENTION_DAYS = 7;

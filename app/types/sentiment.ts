@@ -3,6 +3,8 @@
  * Based on data-model.md specification
  */
 
+import type { ArticleWithSentiment } from '../../server/types/article';
+
 // Mood classification types
 export type MoodType = "positive" | "negative" | "mixed" | "neutral";
 
@@ -93,6 +95,10 @@ export interface SentimentDataPoint {
   // Multi-Source Attribution (NEW - optional for backward compatibility)
   sourceContributions?: SourceContribution[]; // Per-source breakdown
   sourceDiversity?: SourceDiversity; // Source diversity metrics
+
+  // Feature 004: Individual analyzed articles (single source of truth)
+  // All aggregate metrics derive from this array
+  analyzedArticles?: ArticleWithSentiment[];
 
   // Data Quality (optional)
   confidence?: number; // 0-1, quality indicator
