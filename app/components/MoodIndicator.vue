@@ -1,5 +1,5 @@
 <template>
-  <div class="mood-indicator" :class="`mood-${mood}`">
+  <div class="mood-indicator" :class="[`mood-${mood}`, `size-${size}`]">
     <!-- Emoji Display (VD-001, VD-002: 80-120px) -->
     <div 
       class="mood-emoji" 
@@ -10,12 +10,12 @@
     </div>
 
     <!-- Mood Summary Text (VD-004a: friendly Dutch) -->
-    <div class="mood-summary">
+    <div v-if="size === 'large'" class="mood-summary">
       <h2 class="mood-title">{{ summaryText }}</h2>
     </div>
 
     <!-- Sentiment Breakdown (User Story 3) -->
-    <div v-if="showBreakdown" class="mood-breakdown">
+    <div v-if="shouldShowBreakdown" class="mood-breakdown">
       <div class="breakdown-item breakdown-positive">
         <span class="breakdown-label">Positief</span>
         <span class="breakdown-value">{{ breakdown.positive }}%</span>
@@ -38,17 +38,19 @@ import type { MoodType } from '~/types/sentiment';
 // Props
 interface Props {
   mood: MoodType;
-  breakdown: {
+  breakdown?: {
     positive: number;
     neutral: number;
     negative: number;
   };
-  summary: string;
+  summary?: string;
   showBreakdown?: boolean;
+  size?: 'small' | 'large';
 }
 
 const props = withDefaults(defineProps<Props>(), {
   showBreakdown: true,
+  size: 'large',
 });
 
 // Emoji mapping (VD-001)
@@ -73,6 +75,11 @@ const ariaLabel = computed(() => ariaLabelMap[props.mood]);
 
 // Summary text with fallback
 const summaryText = computed(() => props.summary || 'De stemming over zorg');
+
+// Determine if breakdown should be shown based on prop and data availability
+const shouldShowBreakdown = computed(() => {
+  return props.showBreakdown && props.breakdown !== undefined && props.size !== 'small';
+});
 </script>
 
 <style scoped>
@@ -95,6 +102,18 @@ const summaryText = computed(() => props.summary || 'De stemming over zorg');
   align-items: center;
   justify-content: center;
   transition: transform 0.3s ease;
+}
+
+/* Small size variant */
+.mood-indicator.size-small {
+  padding: 0.5rem;
+  gap: 0;
+}
+
+.mood-indicator.size-small .mood-emoji {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
 }
 
 .mood-emoji:hover {
