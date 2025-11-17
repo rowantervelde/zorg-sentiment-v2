@@ -191,13 +191,13 @@ export function calculateMoodFromArticles(articles: ArticleWithSentiment[]): {
   let negativeCount = 0;
   
   articles.forEach((article) => {
-    // Classify based on raw sentiment score
-    // Positive: > 0.2
-    // Negative: < -0.2
-    // Neutral: -0.2 to 0.2
-    if (article.rawSentimentScore > 0.2) {
+    // Classify based on raw sentiment score (comparative normalization: score per word)
+    // Positive: > 0.05 (lowered from 0.2 to match typical Dutch article sentiment range)
+    // Negative: < -0.05 (lowered from -0.2 to match typical Dutch article sentiment range)
+    // Neutral: -0.05 to 0.05
+    if (article.rawSentimentScore > 0.05) {
       positiveCount++;
-    } else if (article.rawSentimentScore < -0.2) {
+    } else if (article.rawSentimentScore < -0.05) {
       negativeCount++;
     } else {
       neutralCount++;
