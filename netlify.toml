@@ -28,3 +28,5 @@
 # Scheduled function for hourly sentiment data collection
 [functions."collect-sentiment"]
   schedule = "@hourly"
+  # Include config files in function bundle
+  included_files = ["server/config/*.json"]
