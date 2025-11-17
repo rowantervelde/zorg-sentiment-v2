@@ -21,10 +21,11 @@ export class RSSAdapter implements SourceAdapter {
     const timeout = config.timeout || 10000
     const maxArticles = config.maxArticles || 30
 
-    // Fetch RSS feed with timeout
+    // Fetch RSS feed with timeout and retries
     const rssArticles = await fetchRSSFeed(config.url, {
       timeout,
-      maxRetries: 1, // Single attempt per orchestrator pattern
+      maxRetries: 3, // Allow retries for transient network issues
+      retryDelay: 1000, // 1 second between retries
       sourceName: config.name, // Pass source name for better logging
     })
 
